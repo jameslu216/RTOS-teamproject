@@ -30,24 +30,27 @@ OBJS +=build/list.o
 OBJS +=build/queue.o
 OBJS +=build/tasks.o
 OBJS +=build/timers.o
+OBJS +=build/event_groups.o
 
 # For FAT filesystem
-# OBJS +=build/ff_crc.o
-# OBJS +=build/ff_dev_support.o
-# OBJS +=build/ff_dir.o
-# OBJS +=build/ff_error.o
-# OBJS +=build/ff_fat.o
-# OBJS +=build/ff_file.o
-# OBJS +=build/ff_format.o
-# OBJS +=build/ff_ioman.o
-# OBJS +=build/ff_locking.o
-# OBJS +=build/ff_locking.org.o
-# OBJS +=build/ff_memory.o
-# OBJS +=build/ff_stdio.o
-# OBJS +=build/ff_string.o
-# OBJS +=build/ff_sys.o
-# OBJS +=build/ff_time.o
+OBJS +=build/ff_crc.o
+OBJS +=build/ff_dev_support.o
+OBJS +=build/ff_dir.o
+OBJS +=build/ff_error.o
+OBJS +=build/ff_fat.o
+OBJS +=build/ff_file.o
+OBJS +=build/ff_format.o
+OBJS +=build/ff_ioman.o
+OBJS +=build/ff_locking.o
+#OBJS +=build/ff_locking.org.o
+OBJS +=build/ff_memory.o
+OBJS +=build/ff_stdio.o
+OBJS +=build/ff_string.o
+OBJS +=build/ff_sys.o
+OBJS +=build/ff_time.o
 
+OBJS +=build/libc.a
+OBJS +=build/libgcc.a
 
 clean :
 	rm -f build/*.o
@@ -77,7 +80,7 @@ build/%.o : FreeRTOS/Source/portable/MemMang/%.c
 	$(ARMGNU)-gcc $(COPS) -c -o $@ $<
 
 kernel7.img : raspberrypi.ld $(OBJS)
-	$(ARMGNU)-ld $(OBJS) -T raspberrypi.ld -o freertos_bcm2837.elf 
+	$(ARMGNU)-ld $(OBJS) -T raspberrypi.ld -o freertos_bcm2837.elf
 	$(ARMGNU)-objdump -D freertos_bcm2837.elf > freertos_bcm2837.list
 	$(ARMGNU)-objcopy freertos_bcm2837.elf -O ihex freertos_bcm2837.hex
 	$(ARMGNU)-objcopy freertos_bcm2837.elf -O binary freertos_bcm2837.bin
