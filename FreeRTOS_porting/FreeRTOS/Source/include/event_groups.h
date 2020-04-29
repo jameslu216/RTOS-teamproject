@@ -1,29 +1,97 @@
 /*
- * FreeRTOS Kernel V10.3.0
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://www.FreeRTOS.org
- * http://aws.amazon.com/freertos
- *
- * 1 tab == 4 spaces!
- */
+    FreeRTOS V8.2.0rc1 - Copyright (C) 2014 Real Time Engineers Ltd.
+    All rights reserved
+
+    VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+
+    This file is part of the FreeRTOS distribution.
+
+    FreeRTOS is free software; you can redistribute it and/or modify it under
+    the terms of the GNU General Public License (version 2) as published by the
+    Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+
+    >>!   NOTE: The modification to the GPL is included to allow you to     !<<
+    >>!   distribute a combined work that includes FreeRTOS without being   !<<
+    >>!   obliged to provide the source code for proprietary components     !<<
+    >>!   outside of the FreeRTOS kernel.                                   !<<
+
+    FreeRTOS is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  Full license text is available on the following
+    link: http://www.freertos.org/a00114.html
+
+    1 tab == 4 spaces!
+
+    ***************************************************************************
+     *                                                                       *
+     *    Having a problem?  Start by reading the FAQ "My application does   *
+     *    not run, what could be wrong?".  Have you defined configASSERT()?  *
+     *                                                                       *
+     *    http://www.FreeRTOS.org/FAQHelp.html                               *
+     *                                                                       *
+    ***************************************************************************
+
+    ***************************************************************************
+     *                                                                       *
+     *    FreeRTOS provides completely free yet professionally developed,    *
+     *    robust, strictly quality controlled, supported, and cross          *
+     *    platform software that is more than just the market leader, it     *
+     *    is the industry's de facto standard.                               *
+     *                                                                       *
+     *    Help yourself get started quickly while simultaneously helping     *
+     *    to support the FreeRTOS project by purchasing a FreeRTOS           *
+     *    tutorial book, reference manual, or both:                          *
+     *    http://www.FreeRTOS.org/Documentation                              *
+     *                                                                       *
+    ***************************************************************************
+
+    ***************************************************************************
+     *                                                                       *
+     *   Investing in training allows your team to be as productive as       *
+     *   possible as early as possible, lowering your overall development    *
+     *   cost, and enabling you to bring a more robust product to market     *
+     *   earlier than would otherwise be possible.  Richard Barry is both    *
+     *   the architect and key author of FreeRTOS, and so also the world's   *
+     *   leading authority on what is the world's most popular real time     *
+     *   kernel for deeply embedded MCU designs.  Obtaining your training    *
+     *   from Richard ensures your team will gain directly from his in-depth *
+     *   product knowledge and years of usage experience.  Contact Real Time *
+     *   Engineers Ltd to enquire about the FreeRTOS Masterclass, presented  *
+     *   by Richard Barry:  http://www.FreeRTOS.org/contact
+     *                                                                       *
+    ***************************************************************************
+
+    ***************************************************************************
+     *                                                                       *
+     *    You are receiving this top quality software for free.  Please play *
+     *    fair and reciprocate by reporting any suspected issues and         *
+     *    participating in the community forum:                              *
+     *    http://www.FreeRTOS.org/support                                    *
+     *                                                                       *
+     *    Thank you!                                                         *
+     *                                                                       *
+    ***************************************************************************
+
+    http://www.FreeRTOS.org - Documentation, books, training, latest versions,
+    license and Real Time Engineers Ltd. contact details.
+
+    http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+    including FreeRTOS+Trace - an indispensable productivity tool, a DOS
+    compatible FAT file system, and our tiny thread aware UDP/IP stack.
+
+    http://www.FreeRTOS.org/labs - Where new FreeRTOS products go to incubate.
+    Come and try FreeRTOS+TCP, our new open source TCP/IP stack for FreeRTOS.
+
+    http://www.OpenRTOS.com - Real Time Engineers ltd license FreeRTOS to High
+    Integrity Systems ltd. to sell under the OpenRTOS brand.  Low cost OpenRTOS
+    licenses offer ticketed support, indemnification and commercial middleware.
+
+    http://www.SafeRTOS.com - High Integrity Systems also provide a safety
+    engineered and independently SIL3 certified version for use in safety and
+    mission critical applications that require provable dependability.
+
+    1 tab == 4 spaces!
+*/
 
 #ifndef EVENT_GROUPS_H
 #define EVENT_GROUPS_H
@@ -32,7 +100,6 @@
 	#error "include FreeRTOS.h" must appear in source files before "include event_groups.h"
 #endif
 
-/* FreeRTOS includes. */
 #include "timers.h"
 
 #ifdef __cplusplus
@@ -78,18 +145,17 @@ extern "C" {
  * \defgroup EventGroupHandle_t EventGroupHandle_t
  * \ingroup EventGroup
  */
-struct EventGroupDef_t;
-typedef struct EventGroupDef_t * EventGroupHandle_t;
+typedef void * EventGroupHandle_t;
 
-/*
- * The type that holds event bits always matches TickType_t - therefore the
+/* 
+ * The type that holds event bits always matches portTickType - therefore the
  * number of bits it holds is set by configUSE_16_BIT_TICKS (16 bits if set to 1,
- * 32 bits if set to 0.
+ * 32 bits if set to 0. 
  *
  * \defgroup EventBits_t EventBits_t
  * \ingroup EventGroup
  */
-typedef TickType_t EventBits_t;
+typedef portTickType EventBits_t;
 
 /**
  * event_groups.h
@@ -97,17 +163,7 @@ typedef TickType_t EventBits_t;
  EventGroupHandle_t xEventGroupCreate( void );
  </pre>
  *
- * Create a new event group.
- *
- * Internally, within the FreeRTOS implementation, event groups use a [small]
- * block of memory, in which the event group's structure is stored.  If an event
- * groups is created using xEventGropuCreate() then the required memory is
- * automatically dynamically allocated inside the xEventGroupCreate() function.
- * (see http://www.freertos.org/a00111.html).  If an event group is created
- * using xEventGropuCreateStatic() then the application writer must instead
- * provide the memory that will get used by the event group.
- * xEventGroupCreateStatic() therefore allows an event group to be created
- * without using any dynamic memory allocation.
+ * Create a new event group.  This function cannot be called from an interrupt.
  *
  * Although event groups are not related to ticks, for internal implementation
  * reasons the number of bits available for use in an event group is dependent
@@ -143,71 +199,16 @@ typedef TickType_t EventBits_t;
  * \defgroup xEventGroupCreate xEventGroupCreate
  * \ingroup EventGroup
  */
-#if( configSUPPORT_DYNAMIC_ALLOCATION == 1 )
-	EventGroupHandle_t xEventGroupCreate( void ) PRIVILEGED_FUNCTION;
-#endif
-
-/**
- * event_groups.h
- *<pre>
- EventGroupHandle_t xEventGroupCreateStatic( EventGroupHandle_t * pxEventGroupBuffer );
- </pre>
- *
- * Create a new event group.
- *
- * Internally, within the FreeRTOS implementation, event groups use a [small]
- * block of memory, in which the event group's structure is stored.  If an event
- * groups is created using xEventGropuCreate() then the required memory is
- * automatically dynamically allocated inside the xEventGroupCreate() function.
- * (see http://www.freertos.org/a00111.html).  If an event group is created
- * using xEventGropuCreateStatic() then the application writer must instead
- * provide the memory that will get used by the event group.
- * xEventGroupCreateStatic() therefore allows an event group to be created
- * without using any dynamic memory allocation.
- *
- * Although event groups are not related to ticks, for internal implementation
- * reasons the number of bits available for use in an event group is dependent
- * on the configUSE_16_BIT_TICKS setting in FreeRTOSConfig.h.  If
- * configUSE_16_BIT_TICKS is 1 then each event group contains 8 usable bits (bit
- * 0 to bit 7).  If configUSE_16_BIT_TICKS is set to 0 then each event group has
- * 24 usable bits (bit 0 to bit 23).  The EventBits_t type is used to store
- * event bits within an event group.
- *
- * @param pxEventGroupBuffer pxEventGroupBuffer must point to a variable of type
- * StaticEventGroup_t, which will be then be used to hold the event group's data
- * structures, removing the need for the memory to be allocated dynamically.
- *
- * @return If the event group was created then a handle to the event group is
- * returned.  If pxEventGroupBuffer was NULL then NULL is returned.
- *
- * Example usage:
-   <pre>
-	// StaticEventGroup_t is a publicly accessible structure that has the same
-	// size and alignment requirements as the real event group structure.  It is
-	// provided as a mechanism for applications to know the size of the event
-	// group (which is dependent on the architecture and configuration file
-	// settings) without breaking the strict data hiding policy by exposing the
-	// real event group internals.  This StaticEventGroup_t variable is passed
-	// into the xSemaphoreCreateEventGroupStatic() function and is used to store
-	// the event group's data structures
-	StaticEventGroup_t xEventGroupBuffer;
-
-	// Create the event group without dynamically allocating any memory.
-	xEventGroup = xEventGroupCreateStatic( &xEventGroupBuffer );
-   </pre>
- */
-#if( configSUPPORT_STATIC_ALLOCATION == 1 )
-	EventGroupHandle_t xEventGroupCreateStatic( StaticEventGroup_t *pxEventGroupBuffer ) PRIVILEGED_FUNCTION;
-#endif
+EventGroupHandle_t xEventGroupCreate( void ) PRIVILEGED_FUNCTION;
 
 /**
  * event_groups.h
  *<pre>
 	EventBits_t xEventGroupWaitBits( 	EventGroupHandle_t xEventGroup,
 										const EventBits_t uxBitsToWaitFor,
-										const BaseType_t xClearOnExit,
-										const BaseType_t xWaitForAllBits,
-										const TickType_t xTicksToWait );
+										const portBASE_TYPE xClearOnExit,
+										const portBASE_TYPE xWaitForAllBits,
+										const portTickType xTicksToWait );
  </pre>
  *
  * [Potentially] block to wait for one or more bits to be set within a
@@ -259,7 +260,7 @@ typedef TickType_t EventBits_t;
    void aFunction( EventGroupHandle_t xEventGroup )
    {
    EventBits_t uxBits;
-   const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
+   const portTickType xTicksToWait = 100 / portTICK_PERIOD_MS;
 
 		// Wait a maximum of 100ms for either bit 0 or bit 4 to be set within
 		// the event group.  Clear the bits before exiting.
@@ -292,7 +293,7 @@ typedef TickType_t EventBits_t;
  * \defgroup xEventGroupWaitBits xEventGroupWaitBits
  * \ingroup EventGroup
  */
-EventBits_t xEventGroupWaitBits( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToWaitFor, const BaseType_t xClearOnExit, const BaseType_t xWaitForAllBits, TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
+EventBits_t xEventGroupWaitBits( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToWaitFor, const portBASE_TYPE xClearOnExit, const portBASE_TYPE xWaitForAllBits, portTickType xTicksToWait ) PRIVILEGED_FUNCTION;
 
 /**
  * event_groups.h
@@ -354,7 +355,7 @@ EventBits_t xEventGroupClearBits( EventGroupHandle_t xEventGroup, const EventBit
 /**
  * event_groups.h
  *<pre>
-	BaseType_t xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet );
+	portBASE_TYPE xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet );
  </pre>
  *
  * A version of xEventGroupClearBits() that can be called from an interrupt.
@@ -365,8 +366,8 @@ EventBits_t xEventGroupClearBits( EventGroupHandle_t xEventGroup, const EventBit
  * while interrupts are disabled, so protects event groups that are accessed
  * from tasks by suspending the scheduler rather than disabling interrupts.  As
  * a result event groups cannot be accessed directly from an interrupt service
- * routine.  Therefore xEventGroupClearBitsFromISR() sends a message to the
- * timer task to have the clear operation performed in the context of the timer
+ * routine.  Therefore xEventGroupClearBitsFromISR() sends a message to the 
+ * timer task to have the clear operation performed in the context of the timer 
  * task.
  *
  * @param xEventGroup The event group in which the bits are to be cleared.
@@ -375,8 +376,8 @@ EventBits_t xEventGroupClearBits( EventGroupHandle_t xEventGroup, const EventBit
  * For example, to clear bit 3 only, set uxBitsToClear to 0x08.  To clear bit 3
  * and bit 0 set uxBitsToClear to 0x09.
  *
- * @return If the request to execute the function was posted successfully then
- * pdPASS is returned, otherwise pdFALSE is returned.  pdFALSE will be returned
+ * @return If the request to execute the function was posted successfully then 
+ * pdPASS is returned, otherwise pdFALSE is returned.  pdFALSE will be returned 
  * if the timer service queue was full.
  *
  * Example usage:
@@ -401,13 +402,13 @@ EventBits_t xEventGroupClearBits( EventGroupHandle_t xEventGroup, const EventBit
 		}
   }
    </pre>
- * \defgroup xEventGroupClearBitsFromISR xEventGroupClearBitsFromISR
+ * \defgroup xEventGroupSetBitsFromISR xEventGroupSetBitsFromISR
  * \ingroup EventGroup
  */
 #if( configUSE_TRACE_FACILITY == 1 )
-	BaseType_t xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToClear ) PRIVILEGED_FUNCTION;
+	portBASE_TYPE xEventGroupClearBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet );
 #else
-	#define xEventGroupClearBitsFromISR( xEventGroup, uxBitsToClear ) xTimerPendFunctionCallFromISR( vEventGroupClearBitsCallback, ( void * ) xEventGroup, ( uint32_t ) uxBitsToClear, NULL )
+	#define xEventGroupClearBitsFromISR( xEventGroup, uxBitsToClear ) xTimerPendFunctionCallFromISR( vEventGroupClearBitsCallback, ( void * ) xEventGroup, ( unsigned int ) uxBitsToClear, NULL )
 #endif
 
 /**
@@ -487,7 +488,7 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
 /**
  * event_groups.h
  *<pre>
-	BaseType_t xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, BaseType_t *pxHigherPriorityTaskWoken );
+	portBASE_TYPE xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, portBASE_TYPE *pxHigherPriorityTaskWoken );
  </pre>
  *
  * A version of xEventGroupSetBits() that can be called from an interrupt.
@@ -495,7 +496,7 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
  * Setting bits in an event group is not a deterministic operation because there
  * are an unknown number of tasks that may be waiting for the bit or bits being
  * set.  FreeRTOS does not allow nondeterministic operations to be performed in
- * interrupts or from critical sections.  Therefore xEventGroupSetBitsFromISR()
+ * interrupts or from critical sections.  Therefore xEventGroupSetBitFromISR()
  * sends a message to the timer task to have the set operation performed in the
  * context of the timer task - where a scheduler lock is used in place of a
  * critical section.
@@ -516,8 +517,8 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
  * *pxHigherPriorityTaskWoken must be initialised to pdFALSE.  See the
  * example code below.
  *
- * @return If the request to execute the function was posted successfully then
- * pdPASS is returned, otherwise pdFALSE is returned.  pdFALSE will be returned
+ * @return If the request to execute the function was posted successfully then 
+ * pdPASS is returned, otherwise pdFALSE is returned.  pdFALSE will be returned 
  * if the timer service queue was full.
  *
  * Example usage:
@@ -531,7 +532,7 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
 
    void anInterruptHandler( void )
    {
-   BaseType_t xHigherPriorityTaskWoken, xResult;
+   portBASE_TYPE xHigherPriorityTaskWoken, xResult;
 
 		// xHigherPriorityTaskWoken must be initialised to pdFALSE.
 		xHigherPriorityTaskWoken = pdFALSE;
@@ -546,8 +547,8 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
 		if( xResult == pdPASS )
 		{
 			// If xHigherPriorityTaskWoken is now set to pdTRUE then a context
-			// switch should be requested.  The macro used is port specific and
-			// will be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() -
+			// switch should be requested.  The macro used is port specific and 
+			// will be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() - 
 			// refer to the documentation page for the port being used.
 			portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 		}
@@ -557,9 +558,9 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
  * \ingroup EventGroup
  */
 #if( configUSE_TRACE_FACILITY == 1 )
-	BaseType_t xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, BaseType_t *pxHigherPriorityTaskWoken ) PRIVILEGED_FUNCTION;
+	portBASE_TYPE xEventGroupSetBitsFromISR( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, portBASE_TYPE *pxHigherPriorityTaskWoken );
 #else
-	#define xEventGroupSetBitsFromISR( xEventGroup, uxBitsToSet, pxHigherPriorityTaskWoken ) xTimerPendFunctionCallFromISR( vEventGroupSetBitsCallback, ( void * ) xEventGroup, ( uint32_t ) uxBitsToSet, pxHigherPriorityTaskWoken )
+	#define xEventGroupSetBitsFromISR( xEventGroup, uxBitsToSet, pxHigherPriorityTaskWoken ) xTimerPendFunctionCallFromISR( vEventGroupSetBitsCallback, ( void * ) xEventGroup, ( unsigned int ) uxBitsToSet, pxHigherPriorityTaskWoken )
 #endif
 
 /**
@@ -568,7 +569,7 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
 	EventBits_t xEventGroupSync(	EventGroupHandle_t xEventGroup,
 									const EventBits_t uxBitsToSet,
 									const EventBits_t uxBitsToWaitFor,
-									TickType_t xTicksToWait );
+									portTickType xTicksToWait );
  </pre>
  *
  * Atomically set bits within an event group, then wait for a combination of
@@ -623,7 +624,7 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
  void vTask0( void *pvParameters )
  {
  EventBits_t uxReturn;
- TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
+ portTickType xTicksToWait = 100 / portTICK_PERIOD_MS;
 
 	 for( ;; )
 	 {
@@ -686,7 +687,7 @@ EventBits_t xEventGroupSetBits( EventGroupHandle_t xEventGroup, const EventBits_
  * \defgroup xEventGroupSync xEventGroupSync
  * \ingroup EventGroup
  */
-EventBits_t xEventGroupSync( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, const EventBits_t uxBitsToWaitFor, TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
+EventBits_t xEventGroupSync( EventGroupHandle_t xEventGroup, const EventBits_t uxBitsToSet, const EventBits_t uxBitsToWaitFor, portTickType xTicksToWait ) PRIVILEGED_FUNCTION;
 
 
 /**
@@ -722,7 +723,7 @@ EventBits_t xEventGroupSync( EventGroupHandle_t xEventGroup, const EventBits_t u
  * \defgroup xEventGroupGetBitsFromISR xEventGroupGetBitsFromISR
  * \ingroup EventGroup
  */
-EventBits_t xEventGroupGetBitsFromISR( EventGroupHandle_t xEventGroup ) PRIVILEGED_FUNCTION;
+EventBits_t xEventGroupGetBitsFromISR( EventGroupHandle_t xEventGroup );
 
 /**
  * event_groups.h
@@ -736,16 +737,14 @@ EventBits_t xEventGroupGetBitsFromISR( EventGroupHandle_t xEventGroup ) PRIVILEG
  *
  * @param xEventGroup The event group being deleted.
  */
-void vEventGroupDelete( EventGroupHandle_t xEventGroup ) PRIVILEGED_FUNCTION;
+void vEventGroupDelete( EventGroupHandle_t xEventGroup );
 
 /* For internal use only. */
-void vEventGroupSetBitsCallback( void *pvEventGroup, const uint32_t ulBitsToSet ) PRIVILEGED_FUNCTION;
-void vEventGroupClearBitsCallback( void *pvEventGroup, const uint32_t ulBitsToClear ) PRIVILEGED_FUNCTION;
-
+void vEventGroupSetBitsCallback( void *pvEventGroup, const unsigned int ulBitsToSet );
+void vEventGroupClearBitsCallback( void *pvEventGroup, const unsigned int ulBitsToClear );
 
 #if (configUSE_TRACE_FACILITY == 1)
-	UBaseType_t uxEventGroupGetNumber( void* xEventGroup ) PRIVILEGED_FUNCTION;
-	void vEventGroupSetNumber( void* xEventGroup, UBaseType_t uxEventGroupNumber ) PRIVILEGED_FUNCTION;
+	UportBASE_TYPE uxEventGroupGetNumber( void* xEventGroup );
 #endif
 
 #ifdef __cplusplus

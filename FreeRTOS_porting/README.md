@@ -1,45 +1,93 @@
-## Getting started
-The easiest way to use FreeRTOS is to start with one of the pre-configured demo application projects (found in the FreeRTOS/Demo directory).  That way you will have the correct FreeRTOS source files included, and the correct include paths configured.  Once a demo application is building and executing you can remove the demo application files, and start to add in your own application source files.  See the [FreeRTOS Kernel Quick Start Guide](https://www.freertos.org/FreeRTOS-quick-start-guide.html) for detailed instructions and other useful links.
+# FreeRTOS ported to Raspberry Pi 3 Model B
 
-Additionally, for FreeRTOS kernel feature information refer to the [Developer Documentation](https://www.freertos.org/features.html), and [API Reference](https://www.freertos.org/a00106.html).
+Forked from rooperl's RPi 3B FreeRTOS and he is also forked from Forty-Tw0's RPi 2 FreeRTOS build
+https://github.com/rooperl/RaspberryPi-FreeRTOS
 
-### Getting help
-If you have any questions or need assistance troubleshooting your FreeRTOS project, we have an active community that can help on the [FreeRTOS Community Support Forum](https://forums.freertos.org). Please also refer to [FAQ](http://www.freertos.org/FAQHelp.html) for frequently asked questions.
+![Raspberry](https://i.imgur.com/IffnaCn.jpg)
+To Be Edit...
+---
 
-## Cloning this repository
-This repo uses [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to bring in dependent components.
+# Build Kernel
+1. Clone this repository:
 
-Note: If you download the ZIP file provided by GitHub UI, you will not get the contents of the submodules. (The ZIP file is also not a valid git repository)
+   ```git clone https://github.com/rooperl/RaspberryPi-FreeRTOS```
 
-To clone using HTTPS:
-```
-git clone https://github.com/FreeRTOS/FreeRTOS.git --recurse-submodules
-```
-Using SSH:
-```
-git clone git@github.com:FreeRTOS/FreeRTOS.git --recurse-submodules
-```
+2. Use the deploy script to build a kernel image file:
 
-If you have downloaded the repo without using the `--recurse-submodules` argument, you need to run:
-```
-git submodule update --init --recursive
-```
+   ```
+   ./deploy
+   ```
 
-## Repository structure
-This repository contains the FreeRTOS Kernel, a number of supplementary libraries, and a comprehensive set of example applications.
+   If you get errors, make sure you have the following packages installed:
 
-### Kernel sources
-The FreeRTOS Kernel Source is in [FreeRTOS/FreeRTOS-Kernel repository](https://github.com/FreeRTOS/FreeRTOS-Kernel), and it is consumed as a submodule in this repository.
+   ```
+   sudo apt-get install make
+   sudo apt-get install build-essential
+   sudo apt-get install gcc-arm-none-eabi
+   sudo apt-get install python
+   ```
+   If you still get errors, make sure you have the right paths and version numbers. 
+   You need to modify the arm-non-eabi- toolchain locations in the Makefile:
+   ```
+   kernel.elf: LDFLAGS += -L"/usr/lib/gcc/arm-none-eabi/4.9.3" -lgcc
+   kernel.elf: LDFLAGS += -L"/usr/lib/arm-none-eabi/lib" -lc
+   ```
 
-The version of the FreeRTOS Kernel Source in use could be accessed at ```./FreeRTOS/Source``` directory.
+   This will copy and replace the kernel7.img file in the SD_Example directory
+   after making a clean build
 
-A number of Demo projects can be found under ```./FreeRTOS/Demo``` directory.
+   If you don't need to change any source files, you can use the pre-built
+   kernel7.img file included in the SD_Example directory.
 
-### Supplementary library sources
-The [FreeRTOS-Plus/Source](https://github.com/FreeRTOS/FreeRTOS/tree/master/FreeRTOS-Plus/Source) directory contains source code for some of the FreeRTOS+ components, as well as select partner provided libraries. These subdirectories contain further readme files and links to documentation.
+3. Format an SD card with the FAT32 filesystem.
 
-[FreeRTOS-Labs](https://github.com/FreeRTOS/FreeRTOS/tree/master/FreeRTOS-Labs) contains libraries and demos that are fully functional, but undergoing optimizations or refactorization to improve memory usage, modularity,
-documentation, demo usability, or test coverage.  At this time the projects ARE A WORK IN PROGRESS and will be released in the main FreeRTOS directories of the download following full review and completion of the documentation.
+4. Copy the contents of the SD_Example directory to your SD card.
 
-## Previous releases
-Previous releases are available for download under [releases](https://github.com/FreeRTOS/FreeRTOS/releases).
+   SD card root folder structure should look like the following:
+   - bootcode.bin
+   - config.txt
+   - kernel7.img
+   - start.elf
+
+   If you're using the Windows 10 Linux Bash,
+   your home directory can be found in the following path:
+
+   ```
+   %LocalAppData%\lxss\home\YOUR_USERNAME\
+   ```
+
+5. Refer to led_pins.txt on connecting the LEDs to Raspberry's GPIO pins.
+   Raspberry Pi 3 GPIO pin layout:
+   https://openclipart.org/image/2400px/svg_to_png/280972/gpiopinsv3withpi.png
+
+6. Insert the SD card before powering the Raspberry.
+   You should see your LEDs continuosly blinking at a frequency
+   between 1 ... 5 seconds depending on the LEDs you have connected.
+
+   Optional: You can connect Raspberry to a monitor with HDMI to see some output.
+
+---
+
+Research links from Forty-Tw0's RESEARCH file:
+
+bare metal USB driver for RPI with ARP example (current port)
+https://github.com/rsta2/uspi
+https://www.raspberrypi.org/forums/viewtopic.php?f=72&t=92579
+
+https://github.com/xinu-os/xinu/tree/master/device/smsc9512
+
+http://www.pebblebay.com/raspberry-pi-embedded/
+The RPI1 has:
+– A USB host controller driver for the Synopsys DesignWare USB 2.0 OTG
+controller embedded in the processor
+– A USB host stack with USB networking infrastructure
+– A device driver for LAN9512/4 Ethernet controller
+Might be similar to the RPI 2?
+
+https://github.com/Chadderz121/csud
+
+TCP/UDP/IP RTOS
+http://www.nxp.com/files/microcontrollers/doc/app_note/AN3470.pdf
+
+datasheet Synopsys DesignWare USB 2.0 OTG
+http://www.quicklogic.com/assets/pdf/data-sheets/QL-Hi-Speed-USB-2.0-OTG-Controller-Data-Sheet.pdf#G1163015

@@ -1,0 +1,5 @@
+kernel.elf
+kernel.list
+kernel.map
+kernel.syms
+build/

@@ -1,0 +1,11 @@
+accelerate
+	gnd	14
+	output	16 (gpio 23)
+
+brake
+	gnd	20
+	output	18 (gpio 24)
+
+clutch
+	gnd	30
+	output	22 (gpio 25)

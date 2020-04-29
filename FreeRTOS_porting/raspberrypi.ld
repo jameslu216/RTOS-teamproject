@@ -66,6 +66,5 @@ SECTIONS {
 	 *	Stack starts at the top of the RAM, and moves down!
 	 **/
 	_estack = ORIGIN(RAM) + LENGTH(RAM);
-	_end = .;
 }
 
