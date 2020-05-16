@@ -5,7 +5,8 @@
 
 #include <video.h>
 #include <mailbox.h>
-#include <5x5_font.h>
+//#include <5x5_font.h>
+#include <fontlibrary.h>
 
 char loaded = 0;
 #define CHAR_WIDTH 56
@@ -145,7 +146,7 @@ void drawChar(unsigned char c, int x, int y, int colour) {
     for (i = 0; i < CHAR_HEIGHT; i++) {
         for (j = 0; j < CHAR_WIDTH; j++) {
             //unsigned char temp = font[c][j];
-            if (font[c][i][j&0x8] & (1<<(j&0x8))) {
+            if (fontArial[c][i][j&0x8] & (1<<(j&0x8))) {
                 framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
             }
         }
