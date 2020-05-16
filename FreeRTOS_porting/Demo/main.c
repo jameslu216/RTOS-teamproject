@@ -87,8 +87,7 @@ void taskMeasureWorkload1msStandard() {
 			startTick = xTaskGetTickCount();
 			workload_1ms(workloadAmount);
 			endTick = xTaskGetTickCount();
-		}
-		while(((int)(endTick-startTick)) == 1);
+		}while(endTick-startTick < 1);
 		printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
 		averageWorkloadAmount += workloadAmount;
 	}
@@ -108,7 +107,7 @@ int main(void) {
 //	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, &xHandle);
 //	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 2, NULL);
 
-//	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
+	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
 
