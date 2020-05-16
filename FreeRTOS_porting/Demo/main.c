@@ -88,7 +88,7 @@ void taskMeasureWorkload1msStandard() {
 			workload_1ms(workloadAmount);
 			endTick = xTaskGetTickCount();
 		}while(endTick-startTick < 1);
-		printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
+//		printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
 		averageWorkloadAmount += workloadAmount;
 	}
 	printHex("Average admissible workload=", averageWorkloadAmount/1000, BLUE_TEXT);

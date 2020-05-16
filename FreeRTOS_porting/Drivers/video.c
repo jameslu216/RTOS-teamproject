@@ -48,8 +48,8 @@ void initFB() {
         attempts++;
     }*/
 
-    SCREEN_WIDTH = 768;//mailbuffer[5];
-    SCREEN_HEIGHT = 432;//mailbuffer[6];
+    SCREEN_WIDTH = 960;//mailbuffer[5];
+    SCREEN_HEIGHT = 540;//mailbuffer[6];
 
     mailbuffer[0] = 22 * 4;        //mail buffer size
     mailbuffer[1] = 0;        //response code
