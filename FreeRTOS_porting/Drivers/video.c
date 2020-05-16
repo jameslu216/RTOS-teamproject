@@ -147,7 +147,7 @@ void drawChar(unsigned char c, int x, int y, int colour) {
 	for (i = 0; i < CHAR_HEIGHT; i++) {
             //unsigned char temp = font[c][j];
             if (fontArial[c][i][j>>3] & (1<<(j&0x7))) {
-                framebuffer[(y + i) * SCREEN_WIDTH + (x + (j>>3))] = colour;
+                framebuffer[(y + i) * SCREEN_WIDTH + (x + j/6)] = colour;
             }
         }
     }
@@ -158,7 +158,7 @@ void drawString(const char *str, int x, int y, int colour) {
     while (*str) {
         drawChar(*str++, x, y, colour);
         // FONT INCREASE VER
-        x += (CHAR_WIDTH>>3);
+        x += CHAR_WIDTH/6;
     }
 }
 
