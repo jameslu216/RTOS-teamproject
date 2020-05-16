@@ -23,6 +23,10 @@ typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef long int32_t;
 
+void taskOutputTest() {
+	println("ABCDE abcde", GREEN_TEXT);
+	vTaskDelete(NULL);
+}
 
 void taskMeasureTest() {
 	println("Measure Test - start", GREEN_TEXT);
@@ -99,12 +103,12 @@ int main(void) {
 	DisableInterrupts();
 	InitInterruptController();
 
+	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
 //	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
 //	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, &xHandle);
 //	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 2, NULL);
-	// Admissible Workload = 0x3C9D1
-	// Admissible Workload = 0x3C101
-	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
+
+//	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
 
