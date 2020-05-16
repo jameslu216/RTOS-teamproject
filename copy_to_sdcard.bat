@@ -1,0 +1,1 @@
+copy /y FreeRTOS_porting\kernel7.img E:\
