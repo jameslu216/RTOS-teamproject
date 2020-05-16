@@ -46,9 +46,18 @@ void taskMeasureTest() {
 void taskInterruptLatency() {
 	println("Measuring Interrupt Latency", GREEN_TEXT);
 	portTickType startTick = xTaskGetTickCount();
+	vTaskSuspend(NULL);
 	portTickType endTick = xTaskGetTickCount();
 	printHex("Current Tick: ", startTick, BLUE_TEXT);
 	printHex("Interrupt Latency: ", (int)(endTick-startTick), BLUE_TEXT);
+	vTaskDelete(NULL);
+}
+
+xTaskHandle xHandle;
+
+void taskInterruptResume() {
+	println("Resume Interrupt Latency", GREEN_TEXT);
+	vTaskResume(xHandle);
 	vTaskDelete(NULL);
 }
 
@@ -60,7 +69,8 @@ int main(void) {
 	InitInterruptController();
 
 	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 0, NULL);
-	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 0, NULL);
+	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 0, &xHandle);
+	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 0, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
 
