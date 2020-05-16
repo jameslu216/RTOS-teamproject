@@ -36,8 +36,7 @@ void taskMeasureTest() {
 
 
 	println("Available printf Test - start", GREEN_TEXT);
-	FreeRTOS_printf(  ( "Interrupt Latency: %d\n", (int)(endTick-startTick) ) );
-	FreeRTOS_debug_printf(  ( "Interrupt Latency: %d\n", (int)(endTick-startTick) ) );
+	printHex("Interrupt Latency: %d\n", (int)(endTick-startTick), BLUE_TEXT);
 
 	vTaskDelete(NULL);
 }
@@ -46,8 +45,7 @@ void taskInterruptLatency() {
 	println("Measuring Interrupt Latency", GREEN_TEXT);
 	portTickType startTick = xTaskGetTickCount();
 	portTickType endTick = xTaskGetTickCount();
-	FreeRTOS_debug_printf(  ( "Interrupt Latency: %d\n", (int)(endTick-startTick) ) );
-	FreeRTOS_printf( ( "Interrupt Latency: %d\n", (int)(endTick-startTick) ) );
+	printHex("Interrupt Latency: %d\n", (int)(endTick-startTick), BLUE_TEXT);
 	vTaskDelete(NULL);
 }
 
