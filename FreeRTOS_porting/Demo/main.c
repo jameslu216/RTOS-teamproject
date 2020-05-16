@@ -61,20 +61,24 @@ void taskInterruptResume() {
 	vTaskDelete(NULL);
 }
 
-void workload_1ms() {
-	println("Getting 1ms workload", GREEN_TEXT);
+
+void workload_1ms(int workloadAmount) {
 	int i;
-	int workloadAmount = 0;
+	for(i = 0;i < workloadAmount;++i) {
+		++i;
+		--i;
+	}
+}
+
+void taskMeasureWorkload1msStandard() {
+	println("Getting 1ms workload", GREEN_TEXT);
+	int workloadAmount;
 	portTickType startTick;
-	vTaskSuspend(NULL);
 	portTickType endTick;
 	do {
 		++workloadAmount;
 		startTick = xTaskGetTickCount();
-		for(i = 0;i < workloadAmount;++i) {
-			++i;
-			--i;
-		}
+		workload_1ms(workloadAmount);
 		endTick = xTaskGetTickCount();
 	}
 	while((int)(endTick-startTick));
@@ -89,9 +93,10 @@ int main(void) {
 	DisableInterrupts();
 	InitInterruptController();
 
-	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 2, NULL);
-	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 1, &xHandle);
-	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 0, NULL);
+	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
+	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, &xHandle);
+	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 2, NULL);
+	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
 
