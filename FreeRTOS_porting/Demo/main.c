@@ -36,7 +36,8 @@ void taskMeasureTest() {
 
 
 	println("Available printf Test - start", GREEN_TEXT);
-	printHex("Interrupt Latency: %d\n", (int)(endTick-startTick), BLUE_TEXT);
+	printHex("Output Int: ", 12345, BLUE_TEXT);
+	printHex("Latency: ", (int)(endTick-startTick), BLUE_TEXT);
 
 	vTaskDelete(NULL);
 }
@@ -45,7 +46,7 @@ void taskInterruptLatency() {
 	println("Measuring Interrupt Latency", GREEN_TEXT);
 	portTickType startTick = xTaskGetTickCount();
 	portTickType endTick = xTaskGetTickCount();
-	printHex("Interrupt Latency: %d\n", (int)(endTick-startTick), BLUE_TEXT);
+	printHex("Interrupt Latency: ", (int)(endTick-startTick), BLUE_TEXT);
 	vTaskDelete(NULL);
 }
 
