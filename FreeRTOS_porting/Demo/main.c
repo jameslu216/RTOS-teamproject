@@ -27,8 +27,9 @@ typedef long int32_t;
 void taskMeasureTest() {
 	println("Measure Test - start", GREEN_TEXT);
 	portTickType startTick = xTaskGetTickCount();
+	println("Measure Test - get tick", GREEN_TEXT);
 	long i;
-	for(i = 0;i < 1e3;++i) {
+	for(i = 0;i < 10;++i) {
 		// NOP
 	}
 	portTickType endTick = xTaskGetTickCount();
