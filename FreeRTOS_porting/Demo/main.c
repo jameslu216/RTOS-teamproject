@@ -27,16 +27,16 @@ typedef long int32_t;
 void taskMeasureTest() {
 	println("Measure Test - start", GREEN_TEXT);
 	portTickType startTick = xTaskGetTickCount();
-	long i;
-	for(i = 0;i < 10;++i) {
-		// NOP
+	long i, j = 1;
+	for(i = 0;i < 100;++i) {
+		j += i;
 	}
 	portTickType endTick = xTaskGetTickCount();
 	println("Measure Test - end", GREEN_TEXT);
 
 
 	println("Available printf Test - start", GREEN_TEXT);
-	printHex("Output Int: ", 12345, BLUE_TEXT);
+	printHex("Output Int: ", j, BLUE_TEXT);
 	printHex("Latency: ", (int)(endTick-startTick), BLUE_TEXT);
 
 	vTaskDelete(NULL);
