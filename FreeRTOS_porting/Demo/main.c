@@ -81,7 +81,7 @@ void taskMeasureWorkload1msStandard() {
 		workload_1ms(workloadAmount);
 		endTick = xTaskGetTickCount();
 	}
-	while((int)(endTick-startTick));
+	while(((int)(endTick-startTick)) == 1);
 	printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
 	vTaskDelete(NULL);
 }
