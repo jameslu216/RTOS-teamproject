@@ -65,8 +65,11 @@ void taskInterruptResume() {
 	vTaskDelete(NULL);
 }
 
+void workload_1ms() {
+    measure_workload_1ms(0x22);
+}
 
-void workload_1ms(long workloadAmount) {
+void measure_workload_1ms(long workloadAmount) {
 	long i;
 	for(i = 0;i < workloadAmount;++i) {
 		++i;
@@ -85,7 +88,7 @@ void taskMeasureWorkload1msStandard() {
 		do {
 			++workloadAmount;
 			startTick = xTaskGetTickCount();
-			workload_1ms(workloadAmount);
+            measure_workload_1ms(workloadAmount);
 			endTick = xTaskGetTickCount();
 		}while(endTick-startTick < 1);
 //		printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
@@ -103,10 +106,10 @@ int main(void) {
 	InitInterruptController();
 
 	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
-//	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
-//	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, &xHandle);
-//	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 2, NULL);
-
+	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
+	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, &xHandle);
+	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 2, NULL);
+    // Admissible Workload for 1ms is 34
 	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
