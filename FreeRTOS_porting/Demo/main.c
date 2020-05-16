@@ -62,8 +62,8 @@ void taskInterruptResume() {
 }
 
 
-void workload_1ms(int workloadAmount) {
-	int i;
+void workload_1ms(long workloadAmount) {
+	long i;
 	for(i = 0;i < workloadAmount;++i) {
 		++i;
 		--i;
@@ -72,17 +72,23 @@ void workload_1ms(int workloadAmount) {
 
 void taskMeasureWorkload1msStandard() {
 	println("Getting 1ms workload", GREEN_TEXT);
-	int workloadAmount;
-	portTickType startTick;
-	portTickType endTick;
-	do {
-		++workloadAmount;
-		startTick = xTaskGetTickCount();
-		workload_1ms(workloadAmount);
-		endTick = xTaskGetTickCount();
+	long averageWorkloadAmount = 0;
+	int i;
+	for(i = 0;i < 1000;++i) {	
+		int workloadAmount = 0;
+		portTickType startTick;
+		portTickType endTick;
+		do {
+			++workloadAmount;
+			startTick = xTaskGetTickCount();
+			workload_1ms(workloadAmount);
+			endTick = xTaskGetTickCount();
+		}
+		while(((int)(endTick-startTick)) == 1);
+		printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
+		averageWorkloadAmount += workloadAmount;
 	}
-	while(((int)(endTick-startTick)) == 1);
-	printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
+	printHex("Average admissible workload=", averageWorkloadAmount/1000, BLUE_TEXT);
 	vTaskDelete(NULL);
 }
 
@@ -97,6 +103,7 @@ int main(void) {
 //	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, &xHandle);
 //	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 2, NULL);
 	// Admissible Workload = 0x3C9D1
+	// Admissible Workload = 0x3C101
 	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
