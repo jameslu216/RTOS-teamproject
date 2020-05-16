@@ -158,7 +158,7 @@ void drawString(const char *str, int x, int y, int colour) {
     while (*str) {
         drawChar(*str++, x, y, colour);
         // FONT INCREASE VER
-        x += CHAR_WIDTH;
+        x += (CHAR_WIDTH>>2);
     }
 }
 
