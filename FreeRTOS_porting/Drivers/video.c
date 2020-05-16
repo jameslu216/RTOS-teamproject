@@ -143,11 +143,11 @@ void drawChar(unsigned char c, int x, int y, int colour) {
 
     // FONT INCREASE VER
     //draw pixels of the character
-    for (i = 0; i < CHAR_HEIGHT; i++) {
-        for (j = 0; j < CHAR_WIDTH; j++) {
+    for (j = 0; j < CHAR_WIDTH; j++) {
+	for (i = 0; i < CHAR_HEIGHT; i++) {
             //unsigned char temp = font[c][j];
             if (fontArial[c][i][j>>3] & (1<<(j&0x7))) {
-                framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
+                framebuffer[(y + i) * SCREEN_WIDTH + (x + (j>>2))] = colour;
             }
         }
     }
