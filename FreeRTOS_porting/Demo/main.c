@@ -46,6 +46,8 @@ void taskInterruptLatency() {
 
 int main(void) {
 
+	initFB();
+
 	DisableInterrupts();
 	InitInterruptController();
 
