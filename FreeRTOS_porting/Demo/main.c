@@ -61,6 +61,27 @@ void taskInterruptResume() {
 	vTaskDelete(NULL);
 }
 
+void workload_1ms() {
+	println("Getting 1ms workload", GREEN_TEXT);
+	int i;
+	int workloadAmount = 0;
+	portTickType startTick;
+	vTaskSuspend(NULL);
+	portTickType endTick;
+	do {
+		++workloadAmount;
+		startTick = xTaskGetTickCount();
+		for(i = 0;i < workloadAmount;++i) {
+			++i;
+			--i;
+		}
+		endTick = xTaskGetTickCount();
+	}
+	while((int)(endTick-startTick));
+	printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
+	vTaskDelete(NULL);
+}
+
 int main(void) {
 
 	initFB();
