@@ -1,12 +1,12 @@
-PRETTY 		= $(BASE).dbuild/pretty/pretty.py
-PRETTIFY	= $(BASE).dbuild/pretty/prettify.py
-PCP			= $(BASE).dbuild/pretty/prettycp.py --rbuild "CP"
-PMD			= $(BASE).dbuild/pretty/prettymd.py
+PRETTY 		= python $(BASE).dbuild/pretty/pretty.py
+PRETTIFY	= python $(BASE).dbuild/pretty/prettify.py
+PCP			= python $(BASE).dbuild/pretty/prettycp.py --rbuild "CP"
+PMD			= python $(BASE).dbuild/pretty/prettymd.py
 PRM			= $(PRETTIFY) --rbuild "RM"
-PCHMOD		= $(BASE).dbuild/pretty/prettychmod.py
-PRETTYSAMBA	= $(BASE).dbuild/pretty/prettysamba.py
-PRETTYLINUX = $(BASE).dbuild/pretty/prettylinux.py
-PTODO		= $(BASE).dbuild/pretty/todo.py
+PCHMOD		= python $(BASE).dbuild/pretty/prettychmod.py
+PRETTYSAMBA	= python $(BASE).dbuild/pretty/prettysamba.py
+PRETTYLINUX = python $(BASE).dbuild/pretty/prettylinux.py
+PTODO		= python $(BASE).dbuild/pretty/todo.py
 
 ifeq ($(DBUILD_VERBOSE_CMD), 1)
 #PRETTY=@ #

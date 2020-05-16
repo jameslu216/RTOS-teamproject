@@ -1,4 +1,4 @@
-V=0
+V=-1
 
 # Set the default verbosity FLAGS.
 VERBOSE_DEPS_PRETTY=0
