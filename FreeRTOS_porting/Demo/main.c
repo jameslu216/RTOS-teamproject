@@ -25,22 +25,22 @@ typedef long int32_t;
 
 
 void taskMeasureTest() {
-	println("Measure Test - start", 0x00);
+	println("Measure Test - start", GREEN_TEXT);
 	portTickType startTick = xTaskGetTickCount();
 	long i;
 	for(i = 0;i < 1e7;++i) {
 		// NOP
 	}
 	portTickType endTick = xTaskGetTickCount();
-	println("Measure Test - end", 0x00);
+	println("Measure Test - end", GREEN_TEXT);
 	vTaskDelete(NULL);
 }
 
 void taskInterruptLatency() {
-	println("Measuring Interrupt Latency", 0x00);
+	println("Measuring Interrupt Latency", GREEN_TEXT);
 	portTickType startTick = xTaskGetTickCount();
 	portTickType endTick = xTaskGetTickCount();
-	println("Interrupt Latency: ", endTick-startTick);
+	FreeRTOS_printf( ( "Interrupt Latency: %u\n", endTick-startTick ) );
 	vTaskDelete(NULL);
 }
 
