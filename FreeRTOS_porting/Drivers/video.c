@@ -5,12 +5,12 @@
 
 #include <video.h>
 #include <mailbox.h>
-//#include <5x5_font.h>
+#include <5x5_font.h>
 #include <fontlibrary.h>
 
 char loaded = 0;
-#define CHAR_WIDTH 56
-#define CHAR_HEIGHT 64
+#define CHAR_WIDTH 6
+#define CHAR_HEIGHT 8
 int SCREEN_WIDTH;
 int SCREEN_HEIGHT;
 
@@ -48,8 +48,8 @@ void initFB() {
         attempts++;
     }*/
 
-    SCREEN_WIDTH = 1920;//mailbuffer[5];
-    SCREEN_HEIGHT = 1080;//mailbuffer[6];
+    SCREEN_WIDTH = 768;//mailbuffer[5];
+    SCREEN_HEIGHT = 432;//mailbuffer[6];
 
     mailbuffer[0] = 22 * 4;        //mail buffer size
     mailbuffer[1] = 0;        //response code
@@ -132,25 +132,25 @@ void drawChar(unsigned char c, int x, int y, int colour) {
 
     // ORIGIN
     //draw pixels of the character
-    //	for (j = 0; j < CHAR_WIDTH; j++) {
-    //		for (i = 0; i < CHAR_HEIGHT; i++) {
-    //			//unsigned char temp = font[c][j];
-    //			if (font[c][j] & (1<<i)) {
-    //				framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
-    //			}
-    //		}
-    //	}
+	for (j = 0; j < CHAR_WIDTH; j++) {
+		for (i = 0; i < CHAR_HEIGHT; i++) {
+			//unsigned char temp = font[c][j];
+			if (font[c][j] & (1<<i)) {
+				framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
+			}
+		}
+	}
 
     // FONT INCREASE VER
     //draw pixels of the character
-    for (j = 0; j < CHAR_WIDTH; j++) {
-	for (i = 0; i < CHAR_HEIGHT; i++) {
-            //unsigned char temp = font[c][j];
-            if (fontArial[c][i][j>>3] & (1<<(j&0x7))) {
-                framebuffer[(y + i) * SCREEN_WIDTH + (x + j/2)] = colour;
-            }
-        }
-    }
+ //    for (j = 0; j < CHAR_WIDTH; j++) {
+	// for (i = 0; i < CHAR_HEIGHT; i++) {
+ //            //unsigned char temp = font[c][j];
+ //            if (fontArial[c][i][j>>3] & (1<<(j&0x7))) {
+ //                framebuffer[(y + i) * SCREEN_WIDTH + (x + j/2)] = colour;
+ //            }
+ //        }
+ //    }
 }
 
 __attribute__((no_instrument_function))
@@ -158,7 +158,7 @@ void drawString(const char *str, int x, int y, int colour) {
     while (*str) {
         drawChar(*str++, x, y, colour);
         // FONT INCREASE VER
-        x += CHAR_WIDTH/2;
+        x += CHAR_WIDTH;
     }
 }
 
