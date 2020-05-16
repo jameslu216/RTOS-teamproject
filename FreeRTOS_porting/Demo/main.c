@@ -65,16 +65,16 @@ void taskInterruptResume() {
 	vTaskDelete(NULL);
 }
 
-void workload_1ms() {
-    measure_workload_1ms(0x22);
-}
-
 void measure_workload_1ms(long workloadAmount) {
 	long i;
 	for(i = 0;i < workloadAmount;++i) {
 		++i;
 		--i;
 	}
+}
+
+void workload_1ms() {
+    measure_workload_1ms(0x22);
 }
 
 void taskMeasureWorkload1msStandard() {
