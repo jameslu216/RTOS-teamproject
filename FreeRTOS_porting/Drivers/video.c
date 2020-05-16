@@ -147,7 +147,7 @@ void drawChar(unsigned char c, int x, int y, int colour) {
         for (j = 0; j < CHAR_WIDTH; j++) {
             //unsigned char temp = font[c][j];
             if (fontArial[c][i][j>>3] & (1<<(j&0x8))) {
-                framebuffer[(y + i) * SCREEN_WIDTH + (x + j)] = colour;
+                framebuffer[(y + i) * SCREEN_WIDTH + (x + (j>>3))] = colour;
             }
         }
     }
