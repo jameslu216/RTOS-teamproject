@@ -129,8 +129,6 @@ NVIC value of 255. */
 #include "trace.h"
 #define traceTASK_SWITCHED_IN() vThreadContextSwitchIn(pxCurrentTCB->uxPriority) 
 #define traceTASK_SWITCHED_OUT() vThreadContextSwitchOut(pxCurrentTCB->uxPriority)
-#define traceINTERRUPT_ENTRY() vInterruptEntry()
-#define traceINTERRUPT_EXIT() vInterruptExit()
 
 #endif /* FREERTOS_CONFIG_H */
 

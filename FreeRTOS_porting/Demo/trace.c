@@ -8,8 +8,6 @@
 static portTickType switchOutTime;
 static portBASE_TYPE switchPriority;
 
-static portTickType interruptOccurTime;
-
 void vThreadContextSwitchIn(unsigned portBASE_TYPE priority) {
 	if(switchPriority < priority) {
 	    printHex("Preemption Time=", xTaskGetTickCount()-switchOutTime, BLUE_TEXT);		
@@ -21,12 +19,4 @@ void vThreadContextSwitchIn(unsigned portBASE_TYPE priority) {
 void vThreadContextSwitchOut(unsigned portBASE_TYPE priority) {
 	switchOutTime = xTaskGetTickCount();
 	switchPriority = priority;
-}
-
-void vInterruptEntry() {
-	interruptOccurTime = xTaskGetTickCount();
-}
-
-void vInterruptExit() {
-    printHex("Interrupt Latency=", xTaskGetTickCount()-interruptOccurTime, BLUE_TEXT);			
 }
