@@ -125,5 +125,10 @@ configKERNEL_INTERRUPT_PRIORITY setting.  Here 15 corresponds to the lowest
 NVIC value of 255. */
 #define configLIBRARY_KERNEL_INTERRUPT_PRIORITY	15
 
+/* Define Trace function */
+#include "trace.h"
+#define traceTASK_SWITCHED_IN() vThreadContextSwitchIn(pxCurrentTCB->uxPriority) 
+#define traceTASK_SWITCHED_OUT() vThreadContextSwitchOut(pxCurrentTCB->uxPriority)
+
 #endif /* FREERTOS_CONFIG_H */
 
