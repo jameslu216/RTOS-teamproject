@@ -131,11 +131,10 @@ void vFreeRTOS_ISR( void ) {
 	portSAVE_CONTEXT();
 //if(loaded != 0) println("vFreeRTOS_ISR", 0xFFFFFFFF);
 	irqHandler();
-//if(loaded == 2) println("vFreeRTOS_ISR", 0xFFFFFFFF);
-	portRESTORE_CONTEXT();
-
 	// Trace
 	traceINTERRUPT_EXIT();
+//if(loaded == 2) println("vFreeRTOS_ISR", 0xFFFFFFFF);
+	portRESTORE_CONTEXT();
 
 	//shouldn't get here, but if it does just return
 	__asm volatile("subs pc, lr, #4");
