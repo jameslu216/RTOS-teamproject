@@ -23,6 +23,9 @@ typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef long int32_t;
 
+#define ACCELERATE_LED_GPIO 23
+int accelerateLedState = 1;
+
 void taskOutputTest() {
 	println("ABCDE abcde", GREEN_TEXT);
 	vTaskDelete(NULL);
@@ -49,19 +52,12 @@ void taskMeasureTest() {
 
 void taskInterruptLatency() {
 	println("Measuring Interrupt Latency", GREEN_TEXT);
+	accelerateLedState = !accelerateLedState;
 	portTickType startTick = xTaskGetTickCount();
-	vTaskSuspend(NULL);
+	SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
+	while(ReadGpio(ACCELERATE_LED_GPIO) == accelerateLedState);
 	portTickType endTick = xTaskGetTickCount();
-	printHex("Current Tick: ", startTick, BLUE_TEXT);
-	printHex("Suspend and Resume Latency: ", (int)(endTick-startTick), BLUE_TEXT);
-	vTaskDelete(NULL);
-}
-
-xTaskHandle xHandle;
-
-void taskInterruptResume() {
-	println("Resume Interrupt Latency", GREEN_TEXT);
-	vTaskResume(xHandle);
+	printHex("Interrupt Latency: ", (int)(endTick-startTick), BLUE_TEXT);
 	vTaskDelete(NULL);
 }
 
@@ -100,15 +96,18 @@ void taskMeasureWorkload1msStandard() {
 
 int main(void) {
 
+	SetGpioFunction(ACCELERATE_LED_GPIO, 1);
+
 	initFB();
+
+	SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
 
 	DisableInterrupts();
 	InitInterruptController();
 
 	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
 	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
-	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, &xHandle);
-	xTaskCreate(taskInterruptResume, "MEASURE_INTERRUPT_RESUME", 128, NULL, 2, NULL);
+	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
     // Admissible Workload for 1ms is 34
 	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
