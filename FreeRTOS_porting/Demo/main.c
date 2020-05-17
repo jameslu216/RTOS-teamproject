@@ -55,7 +55,7 @@ void taskInterruptLatency() {
 	accelerateLedState = !accelerateLedState;
 	portTickType startTick = xTaskGetTickCount();
 	SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
-	while(ReadGpio(ACCELERATE_LED_GPIO) == accelerateLedState);
+	while(ReadGpio(ACCELERATE_LED_GPIO) != accelerateLedState);
 	portTickType endTick = xTaskGetTickCount();
 	printHex("Interrupt Latency: ", (int)(endTick-startTick), BLUE_TEXT);
 	vTaskDelete(NULL);
