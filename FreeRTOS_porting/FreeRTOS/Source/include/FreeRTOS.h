@@ -291,6 +291,16 @@ typedef portBASE_TYPE (*pdTASK_HOOK_CODE)( void * );
 	#define traceTASK_SWITCHED_OUT()
 #endif
 
+#ifndef traceINTERRUPT_ENTRY
+/* Called before an interrupt occur. */
+	#define traceINTERRUPT_ENTRY()
+#endif
+
+#ifndef traceINTERRUPT_EXIT
+/* Called after an interrupt occured. */
+	#define traceINTERRUPT_EXIT()
+#endif
+
 #ifndef traceTASK_PRIORITY_INHERIT
 	/* Called when a task attempts to take a mutex that is already held by a
 	lower priority task.  pxTCBOfMutexHolder is a pointer to the TCB of the task
