@@ -7,4 +7,8 @@ void vThreadContextSwitchIn(unsigned portBASE_TYPE priority);
 
 void vThreadContextSwitchOut(unsigned portBASE_TYPE priority);
 
+void vInterruptEntry();
+
+void vInterruptExit();
+
 #endif // TRACE_H

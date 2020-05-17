@@ -53,7 +53,7 @@ void taskInterruptLatency() {
 	vTaskSuspend(NULL);
 	portTickType endTick = xTaskGetTickCount();
 	printHex("Current Tick: ", startTick, BLUE_TEXT);
-	printHex("Interrupt Latency: ", (int)(endTick-startTick), BLUE_TEXT);
+	printHex("Suspend and Resume Latency: ", (int)(endTick-startTick), BLUE_TEXT);
 	vTaskDelete(NULL);
 }
 
