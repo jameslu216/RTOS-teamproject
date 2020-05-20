@@ -81,8 +81,8 @@ void taskMeasureWorkload1msStandard() {
 	int i;
 	for(i = 0;i < 1000;++i) {	
 		int workloadAmount = 0;
-		portTickType startTime;
-		portTickType endTime;
+		portLONG startTime;
+		portLONG endTime;
 		do {
 			++workloadAmount;
 			portGET_CURRENT_TIME_IN_MICROSECOND();
@@ -110,7 +110,7 @@ int main(void) {
 	InitInterruptController();
 
 	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
-//	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
+	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
 	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
