@@ -34,6 +34,9 @@
 #define portNO_CRITICAL_NESTING		( ( unsigned long ) 0 )
 volatile unsigned long ulCriticalNesting = 9999UL;
 
+#define portNO_RECORD_CURRENT_TIME		( ( unsigned long ) 0 )
+volatile unsigned long ulCurrentTimeInMicroSecond = 0UL;
+
 /*-----------------------------------------------------------*/
 
 /* ISR to handle manual context switches (from a call to taskYIELD()). */

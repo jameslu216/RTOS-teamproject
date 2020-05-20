@@ -28,6 +28,11 @@ int accelerateLedState = 1;
 
 void taskOutputTest() {
 	println("ABCDE abcde", GREEN_TEXT);
+
+	portGET_CURRENT_TIME_IN_MICROSECOND();
+	extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
+	printHex("Current time is=", ulCurrentTimeInMicroSecond, GREEN_TEXT);
+
 	vTaskDelete(NULL);
 }
 

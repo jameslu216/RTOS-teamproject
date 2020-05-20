@@ -139,11 +139,35 @@ extern "C" {
 	( void ) ulCriticalNesting;												\
 	( void ) pxCurrentTCB;													\
 }
+/*-----------------------------------------------------------*/
+#define portGET_CURRENT_TIME_IN_MICROSECOND()								\
+{																			\
+	extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;			\
+																			\
+	/* Push R0 and R1 as we are going to use the register. */				\
+	__asm volatile (														\
+	"STMDB	SP!, {R0}												\n\t"	\
+	"STMDB	SP!, {R1}												\n\t"	\
+	/* Store #3F003000 to R1 */												\
+    "MOV    R1, #16128 											\n\t"	\
+    "LSL    R1, R1, #16 											\n\t"	\
+    "ORR    R1, R1, #12288 											\n\t"	\
+	/* Load timer to R0 */													\
+    "LDR    R0,[R1, #4] 											\n\t"	\
+	/* Store timer to ulCurrentTimeInMicroSecond */							\
+	"LDR	R1, =ulCurrentTimeInMicroSecond							\n\t"	\
+	"STR	R0, [R1]												\n\t"	\
+	/* Pop R0 and R1 so we can save it onto the system mode stack. */		\
+	"LDMIA	SP!, {R1}												\n\t"	\
+	"LDMIA	SP!, {R0}												\n\t"	\
+	);																		\
+	( void ) ulCurrentTimeInMicroSecond;									\
+}
+/*----------------Get Time-----------------------------------*/
 
 extern void vTaskSwitchContext( void );
 #define portYIELD_FROM_ISR()		vTaskSwitchContext()
 #define portYIELD()					__asm volatile ( "SWI 0" )
-/*-----------------------------------------------------------*/
 
 
 /* Critical section management. */
@@ -189,6 +213,7 @@ extern void vPortExitCritical( void );
 #define portENTER_CRITICAL()		vPortEnterCritical();
 #define portEXIT_CRITICAL()		vPortExitCritical();
 /*-----------------------------------------------------------*/
+
 
 /* Task function macros as described on the FreeRTOS.org WEB site. */
 #define portTASK_FUNCTION_PROTO( vFunction, pvParameters ) void vFunction( void *pvParameters )
