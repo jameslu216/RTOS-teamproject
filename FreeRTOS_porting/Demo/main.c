@@ -35,7 +35,7 @@ void measure_workload_1ms(long workloadAmount) {
 }
 
 void workload_1ms() {
-    measure_workload_1ms(0x22);
+    measure_workload_1ms(0x357);
 }
 
 void taskOutputTest() {
@@ -80,7 +80,7 @@ void taskMeasureWorkload1msStandard() {
 	long averageWorkloadAmount = 0;
 	int i;
 	for(i = 0;i < 1000;++i) {	
-		int workloadAmount = 0;
+		long workloadAmount = 0;
 		portLONG startTime;
 		portLONG endTime;
 		do {
@@ -111,7 +111,7 @@ int main(void) {
 
 	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
 	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
-	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
+	// xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
 

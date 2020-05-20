@@ -11,8 +11,10 @@
 char loaded = 0;
 #define CHAR_WIDTH 6
 #define CHAR_HEIGHT 8
-int SCREEN_WIDTH;
-int SCREEN_HEIGHT;
+int SCREEN_WIDTH = 960;
+int SCREEN_HEIGHT = 540;
+int REAL_SCREEN_WIDTH = 1920;
+int REAL_SCREEN_HEIGHT = 1080;
 
 void enablelogging() { loaded = 1; }
 
@@ -22,7 +24,7 @@ unsigned int *framebuffer;
 
 void initFB() {
     //get the display size
-    /*mailbuffer[0] = 8 * 4;		//mailbuffer size
+    mailbuffer[0] = 8 * 4;		//mailbuffer size
     mailbuffer[1] = 0;		//response code
     mailbuffer[2] = 0x00040003;	//test display size
     mailbuffer[3] = 8;		//value buffer size
@@ -41,15 +43,17 @@ void initFB() {
         if(attempts >= 5){
             //I don't bother breaking; just fake the response
             mailbuffer[1] = 0x80000000;
-            mailbuffer[5] = 640;
-            mailbuffer[6] = 480;
         }
 
         attempts++;
-    }*/
-
-    SCREEN_WIDTH = 960;//mailbuffer[5];
-    SCREEN_HEIGHT = 540;//mailbuffer[6];
+    }
+    if(attempts <= 5){
+        REAL_SCREEN_WIDTH = mailbuffer[5];
+        REAL_SCREEN_HEIGHT = mailbuffer[6];
+    } else {
+        REAL_SCREEN_WIDTH = SCREEN_WIDTH;
+        REAL_SCREEN_HEIGHT = SCREEN_HEIGHT;        
+    }
 
     mailbuffer[0] = 22 * 4;        //mail buffer size
     mailbuffer[1] = 0;        //response code
@@ -176,22 +180,16 @@ void println(const char *message, int colour) {
 
     drawString(message, position_x, position_y, colour);
     position_y = position_y + CHAR_HEIGHT + 1;
-    if (position_y >= SCREEN_HEIGHT) {
-        if (position_x + 2 * (SCREEN_WIDTH / 8) > SCREEN_WIDTH) {
+    if (position_y >= REAL_SCREEN_HEIGHT) {
+        volatile int *timeStamp = (int *) 0x3f003004;
+        int stop = *timeStamp + 5000 * 1000;
+        while (*timeStamp < stop) __asm__("nop");
 
-            volatile int *timeStamp = (int *) 0x3f003004;
-            int stop = *timeStamp + 5000 * 1000;
-            while (*timeStamp < stop) __asm__("nop");
-
-            for (int x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++) {
-                framebuffer[x] = 0xFF000000;
-            }
-            position_y = 0;
-            position_x = 0;
-        } else {
-            position_y = 0;
-            position_x += SCREEN_WIDTH / 8;
+        for (int x = 0; x < REAL_SCREEN_WIDTH * REAL_SCREEN_HEIGHT; x++) {
+            framebuffer[x] = 0xFF000000;
         }
+        position_y = 0;
+        position_x = 0;
     }
 
     if (s_bWereEnabled) __asm volatile ("cpsie i" : : : "memory");
