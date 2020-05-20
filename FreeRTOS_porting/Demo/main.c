@@ -109,7 +109,7 @@ int main(void) {
 	DisableInterrupts();
 	InitInterruptController();
 
-	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
+	// xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
 	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
 	// xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 

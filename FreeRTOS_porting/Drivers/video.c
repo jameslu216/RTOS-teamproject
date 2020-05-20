@@ -182,6 +182,7 @@ void println(const char *message, int colour) {
     position_y = position_y + CHAR_HEIGHT + 1;
     if (position_y >= REAL_SCREEN_HEIGHT) {
         volatile int *timeStamp = (int *) 0x3f003004;
+        // Wait time
         int stop = *timeStamp + 5000 * 1000;
         while (*timeStamp < stop) __asm__("nop");
 
