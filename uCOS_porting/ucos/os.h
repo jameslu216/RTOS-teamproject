@@ -45,7 +45,7 @@
 
 #include <os_cfg.h>
 #include <os_cfg_app.h>
-// #include <cpu_core.h> // 20200521 I can't find this inplementation...
+#include <cpu_core.h> // 20200521 I can't find this inplementation...
 #include "os_type.h"
 #include <os_cpu.h>
 #include "os_trace.h"
