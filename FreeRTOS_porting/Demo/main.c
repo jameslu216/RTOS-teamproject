@@ -26,12 +26,30 @@ typedef long int32_t;
 #define ACCELERATE_LED_GPIO 23
 int accelerateLedState = 1;
 
+void measure_workload_1ms(long workloadAmount) {
+	long i;
+	for(i = 0;i < workloadAmount;++i) {
+		++i;
+		--i;
+	}
+}
+
+void workload_1ms() {
+    measure_workload_1ms(0x22);
+}
+
 void taskOutputTest() {
 	println("ABCDE abcde", GREEN_TEXT);
 
 	portGET_CURRENT_TIME_IN_MICROSECOND();
 	extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
 	printHex("Current time is=", ulCurrentTimeInMicroSecond, GREEN_TEXT);
+	portLONG startTime = ulCurrentTimeInMicroSecond;
+	workload_1ms();
+	portGET_CURRENT_TIME_IN_MICROSECOND();
+	printHex("Current time is=", ulCurrentTimeInMicroSecond, GREEN_TEXT);
+	printHex("Time difference is=", ulCurrentTimeInMicroSecond - startTime, GREEN_TEXT);
+
 
 	vTaskDelete(NULL);
 }
@@ -64,18 +82,6 @@ void taskInterruptLatency() {
 	portTickType endTick = xTaskGetTickCount();
 	printHex("Interrupt Latency: ", (int)(endTick-startTick), BLUE_TEXT);
 	vTaskDelete(NULL);
-}
-
-void measure_workload_1ms(long workloadAmount) {
-	long i;
-	for(i = 0;i < workloadAmount;++i) {
-		++i;
-		--i;
-	}
-}
-
-void workload_1ms() {
-    measure_workload_1ms(0x22);
 }
 
 void taskMeasureWorkload1msStandard() {
