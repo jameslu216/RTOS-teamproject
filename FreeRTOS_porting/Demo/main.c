@@ -41,14 +41,17 @@ void workload_1ms() {
 void taskOutputTest() {
 	println("ABCDE abcde", GREEN_TEXT);
 
-	portGET_CURRENT_TIME_IN_MICROSECOND();
 	extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
-	printHex("Current time is=", ulCurrentTimeInMicroSecond, GREEN_TEXT);
-	portLONG startTime = ulCurrentTimeInMicroSecond;
-	workload_1ms();
-	portGET_CURRENT_TIME_IN_MICROSECOND();
-	printHex("Current time is=", ulCurrentTimeInMicroSecond, GREEN_TEXT);
-	printHex("Time difference is=", ulCurrentTimeInMicroSecond - startTime, GREEN_TEXT);
+	long i;
+	for(i = 0;i < 5;++i) {
+		portGET_CURRENT_TIME_IN_MICROSECOND();
+		printHex("Current time is=", ulCurrentTimeInMicroSecond, GREEN_TEXT);
+		portLONG startTime = ulCurrentTimeInMicroSecond;
+		workload_1ms();
+		portGET_CURRENT_TIME_IN_MICROSECOND();
+		printHex("Current time is=", ulCurrentTimeInMicroSecond, GREEN_TEXT);
+		printHex("Time difference is=", ulCurrentTimeInMicroSecond - startTime, GREEN_TEXT);		
+	}
 
 
 	vTaskDelete(NULL);
