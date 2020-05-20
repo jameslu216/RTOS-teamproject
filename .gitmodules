@@ -1,3 +1,6 @@
 [submodule "FreeRTOS/Source"]
 	path = FreeRTOS/Source
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "uCOS_porting/uCOS_porting/Kernal_dir/uC-OS3"]
+	path = uCOS_porting/uCOS_porting/Kernal_dir/uC-OS3
+	url = https://github.com/SiliconLabs/uC-OS3.git

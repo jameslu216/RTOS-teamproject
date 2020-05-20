@@ -1,9 +1,10 @@
 
 ARMGNU ?= arm-none-eabi
 
-INCLUDEPATH ?= "./h"
+INCLUDEPATH ?= -I "./h"
+INCLUDEPATH += -I "/home/alieon/RTOS_HW/RTOS_Porting/RTOS-teamproject/uCOS_porting/ucos"
 
-COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding -mcpu=arm1176jzf-s -I $(INCLUDEPATH)
+COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding -mcpu=arm1176jzf-s $(INCLUDEPATH)
 
 gcc : kernel.img
 
