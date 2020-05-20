@@ -3,6 +3,7 @@ ARMGNU ?= arm-none-eabi
 
 INCLUDEPATH ?= -I "./h"
 INCLUDEPATH += -I "/home/alieon/RTOS_HW/RTOS_Porting/RTOS-teamproject/uCOS_porting/ucos"
+INCLUDEPATH += -I "./port"
 
 COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding -mcpu=arm1176jzf-s $(INCLUDEPATH)
 
@@ -17,7 +18,8 @@ OBJS += build/interrupts.o
 OBJS += build/OS_Cpu_a.o
 OBJS += build/OS_Cpu_c.o
 
-OBJS += build/ucos_ii.o
+# OBJS += build/ucos_ii.o
+OBJS += build/ucos_iii.o
 
 OBJS += build/main.o
 OBJS += build/userApp.o
@@ -49,8 +51,8 @@ build/%.o : bsp/%.c
 build/%.o : usrApp/%.c
 	$(ARMGNU)-gcc $(COPS)  -c -o $@ $<
 
-build/ucos_ii.o : ucos/ucos_ii.c
-	$(ARMGNU)-gcc $(COPS) ucos/ucos_ii.c -c -o build/ucos_ii.o
+build/ucos_iii.o : ucos/ucos_iii.c
+	$(ARMGNU)-gcc $(COPS) ucos/ucos_iii.c -c -o build/ucos_iii.o
 
 kernel.img : raspberrypi.ld $(OBJS)
 	$(ARMGNU)-ld $(OBJS) -T raspberrypi.ld -o ucos_bcm2835.elf 

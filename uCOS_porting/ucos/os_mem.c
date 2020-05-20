@@ -1,456 +1,391 @@
 /*
 *********************************************************************************************************
-*                                                uC/OS-II
-*                                          The Real-Time Kernel
-*                                            MEMORY MANAGEMENT
+*                                              uC/OS-III
+*                                        The Real-Time Kernel
 *
-*                              (c) Copyright 1992-2009, Micrium, Weston, FL
-*                                           All Rights Reserved
+*                    Copyright 2009-2020 Silicon Laboratories Inc. www.silabs.com
 *
-* File    : OS_MEM.C
-* By      : Jean J. Labrosse
-* Version : V2.91
+*                                 SPDX-License-Identifier: APACHE-2.0
 *
-* LICENSING TERMS:
-* ---------------
-*   uC/OS-II is provided in source form for FREE evaluation, for educational use or for peaceful research.
-* If you plan on using  uC/OS-II  in a commercial product you need to contact Micriµm to properly license
-* its use in your product. We provide ALL the source code for your convenience and to help you experience
-* uC/OS-II.   The fact that the  source is provided does  NOT  mean that you can use it without  paying a
-* licensing fee.
+*               This software is subject to an open source license and is distributed by
+*                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
+*                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
+*
 *********************************************************************************************************
 */
 
-#ifndef  OS_MASTER_FILE
-#include <ucos_ii.h>
-#endif
-
-#if (OS_MEM_EN > 0u) && (OS_MAX_MEM_PART > 0u)
 /*
 *********************************************************************************************************
-*                                        CREATE A MEMORY PARTITION
+*                                      MEMORY PARTITION MANAGEMENT
 *
-* Description : Create a fixed-sized memory partition that will be managed by uC/OS-II.
-*
-* Arguments   : addr     is the starting address of the memory partition
-*
-*               nblks    is the number of memory blocks to create from the partition.
-*
-*               blksize  is the size (in bytes) of each block in the memory partition.
-*
-*               perr     is a pointer to a variable containing an error message which will be set by
-*                        this function to either:
-*
-*                        OS_ERR_NONE              if the memory partition has been created correctly.
-*                        OS_ERR_MEM_INVALID_ADDR  if you are specifying an invalid address for the memory
-*                                                 storage of the partition or, the block does not align
-*                                                 on a pointer boundary
-*                        OS_ERR_MEM_INVALID_PART  no free partitions available
-*                        OS_ERR_MEM_INVALID_BLKS  user specified an invalid number of blocks (must be >= 2)
-*                        OS_ERR_MEM_INVALID_SIZE  user specified an invalid block size
-*                                                   - must be greater than the size of a pointer
-*                                                   - must be able to hold an integral number of pointers
-* Returns    : != (OS_MEM *)0  is the partition was created
-*              == (OS_MEM *)0  if the partition was not created because of invalid arguments or, no
-*                              free partition is available.
+* File    : os_mem.c
+* Version : V3.08.00
 *********************************************************************************************************
 */
 
-OS_MEM  *OSMemCreate (void   *addr,
-                      INT32U  nblks,
-                      INT32U  blksize,
-                      INT8U  *perr)
-{
-    OS_MEM    *pmem;
-    INT8U     *pblk;
-    void     **plink;
-    INT32U     loops;
-    INT32U     i;
-#if OS_CRITICAL_METHOD == 3u                          /* Allocate storage for CPU status register      */
-    OS_CPU_SR  cpu_sr = 0u;
+#define   MICRIUM_SOURCE
+#include "os.h"
+
+#ifdef VSC_INCLUDE_SOURCE_FILE_NAMES
+const  CPU_CHAR  *os_mem__c = "$Id: $";
 #endif
+
+
+#if (OS_CFG_MEM_EN > 0u)
+/*
+************************************************************************************************************************
+*                                               CREATE A MEMORY PARTITION
+*
+* Description : Create a fixed-sized memory partition that will be managed by uC/OS-III.
+*
+* Arguments   : p_mem    is a pointer to a memory partition control block which is allocated in user memory space.
+*
+*               p_name   is a pointer to an ASCII string to provide a name to the memory partition.
+*
+*               p_addr   is the starting address of the memory partition
+*
+*               n_blks   is the number of memory blocks to create from the partition.
+*
+*               blk_size is the size (in bytes) of each block in the memory partition.
+*
+*               p_err    is a pointer to a variable containing an error message which will be set by this function to
+*                        either:
+*
+*                            OS_ERR_NONE                    If the memory partition has been created correctly
+*                            OS_ERR_ILLEGAL_CREATE_RUN_TIME If you are trying to create the memory partition after you
+*                                                             called OSSafetyCriticalStart()
+*                            OS_ERR_MEM_CREATE_ISR          If you called this function from an ISR
+*                            OS_ERR_MEM_INVALID_BLKS        User specified an invalid number of blocks (must be >= 2)
+*                            OS_ERR_MEM_INVALID_P_ADDR      If you are specifying an invalid address for the memory
+*                                                           storage of the partition or, the block does not align on a
+*                                                           pointer boundary
+*                            OS_ERR_MEM_INVALID_SIZE        User specified an invalid block size
+*                                                             - must be greater than the size of a pointer
+*                                                             - must be able to hold an integral number of pointers
+*                            OS_ERR_OBJ_CREATED             If the memory partition was already created
+* Returns    : none
+*
+* Note(s)    : none
+************************************************************************************************************************
+*/
+
+void  OSMemCreate (OS_MEM       *p_mem,
+                   CPU_CHAR     *p_name,
+                   void         *p_addr,
+                   OS_MEM_QTY    n_blks,
+                   OS_MEM_SIZE   blk_size,
+                   OS_ERR       *p_err)
+{
+#if (OS_CFG_ARG_CHK_EN > 0u)
+    CPU_DATA       align_msk;
+#endif
+    OS_MEM_QTY     i;
+    OS_MEM_QTY     loops;
+    CPU_INT08U    *p_blk;
+    void         **p_link;
+    CPU_SR_ALLOC();
 
 
 
 #ifdef OS_SAFETY_CRITICAL
-    if (perr == (INT8U *)0) {
+    if (p_err == (OS_ERR *)0) {
         OS_SAFETY_CRITICAL_EXCEPTION();
+        return;
     }
 #endif
 
 #ifdef OS_SAFETY_CRITICAL_IEC61508
     if (OSSafetyCriticalStartFlag == OS_TRUE) {
-        OS_SAFETY_CRITICAL_EXCEPTION();
+       *p_err = OS_ERR_ILLEGAL_CREATE_RUN_TIME;
+        return;
     }
 #endif
 
-#if OS_ARG_CHK_EN > 0u
-    if (addr == (void *)0) {                          /* Must pass a valid address for the memory part.*/
-        *perr = OS_ERR_MEM_INVALID_ADDR;
-        return ((OS_MEM *)0);
-    }
-    if (((INT32U)addr & (sizeof(void *) - 1u)) != 0u){  /* Must be pointer size aligned                */
-        *perr = OS_ERR_MEM_INVALID_ADDR;
-        return ((OS_MEM *)0);
-    }
-    if (nblks < 2u) {                                 /* Must have at least 2 blocks per partition     */
-        *perr = OS_ERR_MEM_INVALID_BLKS;
-        return ((OS_MEM *)0);
-    }
-    if (blksize < sizeof(void *)) {                   /* Must contain space for at least a pointer     */
-        *perr = OS_ERR_MEM_INVALID_SIZE;
-        return ((OS_MEM *)0);
+#if (OS_CFG_CALLED_FROM_ISR_CHK_EN > 0u)
+    if (OSIntNestingCtr > 0u) {                                 /* Not allowed to call from an ISR                      */
+       *p_err = OS_ERR_MEM_CREATE_ISR;
+        return;
     }
 #endif
-    OS_ENTER_CRITICAL();
-    pmem = OSMemFreeList;                             /* Get next free memory partition                */
-    if (OSMemFreeList != (OS_MEM *)0) {               /* See if pool of free partitions was empty      */
-        OSMemFreeList = (OS_MEM *)OSMemFreeList->OSMemFreeList;
+
+#if (OS_CFG_ARG_CHK_EN > 0u)
+    if (p_addr == (void *)0) {                                  /* Must pass a valid address for the memory part.       */
+       *p_err   = OS_ERR_MEM_INVALID_P_ADDR;
+        return;
     }
-    OS_EXIT_CRITICAL();
-    if (pmem == (OS_MEM *)0) {                        /* See if we have a memory partition             */
-        *perr = OS_ERR_MEM_INVALID_PART;
-        return ((OS_MEM *)0);
+    if (n_blks < 2u) {                                          /* Must have at least 2 blocks per partition            */
+       *p_err = OS_ERR_MEM_INVALID_BLKS;
+        return;
     }
-    plink = (void **)addr;                            /* Create linked list of free memory blocks      */
-    pblk  = (INT8U *)addr;
-    loops  = nblks - 1u;
+    if (blk_size < sizeof(void *)) {                            /* Must contain space for at least a pointer            */
+       *p_err = OS_ERR_MEM_INVALID_SIZE;
+        return;
+    }
+    align_msk = sizeof(void *) - 1u;
+    if (align_msk > 0u) {
+        if (((CPU_ADDR)p_addr & align_msk) != 0u){              /* Must be pointer size aligned                         */
+           *p_err = OS_ERR_MEM_INVALID_P_ADDR;
+            return;
+        }
+        if ((blk_size & align_msk) != 0u) {                     /* Block size must be a multiple address size           */
+           *p_err = OS_ERR_MEM_INVALID_SIZE;
+            return;
+        }
+    }
+#endif
+
+    p_link = (void **)p_addr;                                   /* Create linked list of free memory blocks             */
+    p_blk  = (CPU_INT08U *)p_addr;
+    loops  = n_blks - 1u;
     for (i = 0u; i < loops; i++) {
-        pblk +=  blksize;                             /* Point to the FOLLOWING block                  */
-       *plink = (void  *)pblk;                        /* Save pointer to NEXT block in CURRENT block   */
-        plink = (void **)pblk;                        /* Position to  NEXT      block                  */
+        p_blk +=  blk_size;
+       *p_link = (void  *)p_blk;                                /* Save pointer to NEXT block in CURRENT block          */
+        p_link = (void **)(void *)p_blk;                        /* Position     to NEXT block                           */
     }
-    *plink              = (void *)0;                  /* Last memory block points to NULL              */
-    pmem->OSMemAddr     = addr;                       /* Store start address of memory partition       */
-    pmem->OSMemFreeList = addr;                       /* Initialize pointer to pool of free blocks     */
-    pmem->OSMemNFree    = nblks;                      /* Store number of free blocks in MCB            */
-    pmem->OSMemNBlks    = nblks;
-    pmem->OSMemBlkSize  = blksize;                    /* Store block size of each memory blocks        */
-    *perr               = OS_ERR_NONE;
-    return (pmem);
+   *p_link             = (void *)0;                             /* Last memory block points to NULL                     */
+
+    CPU_CRITICAL_ENTER();
+#if (OS_OBJ_TYPE_REQ > 0u)
+    if (p_mem->Type == OS_OBJ_TYPE_MEM) {
+        CPU_CRITICAL_EXIT();
+        *p_err = OS_ERR_OBJ_CREATED;
+        return;
+    }
+    p_mem->Type        = OS_OBJ_TYPE_MEM;                       /* Set the type of object                               */
+#endif
+#if (OS_CFG_DBG_EN > 0u)
+    p_mem->NamePtr     = p_name;                                /* Save name of memory partition                        */
+#else
+    (void)p_name;
+#endif
+    p_mem->AddrPtr     = p_addr;                                /* Store start address of memory partition              */
+    p_mem->FreeListPtr = p_addr;                                /* Initialize pointer to pool of free blocks            */
+    p_mem->NbrFree     = n_blks;                                /* Store number of free blocks in MCB                   */
+    p_mem->NbrMax      = n_blks;
+    p_mem->BlkSize     = blk_size;                              /* Store block size of each memory blocks               */
+
+#if (OS_CFG_DBG_EN > 0u)
+    OS_MemDbgListAdd(p_mem);
+    OSMemQty++;
+#endif
+
+    OS_TRACE_MEM_CREATE(p_mem, p_name);
+    CPU_CRITICAL_EXIT();
+   *p_err = OS_ERR_NONE;
 }
-/*$PAGE*/
+
+
 /*
-*********************************************************************************************************
-*                                          GET A MEMORY BLOCK
+************************************************************************************************************************
+*                                                  GET A MEMORY BLOCK
 *
-* Description : Get a memory block from a partition
+* Description : Get a memory block from a partition.
 *
-* Arguments   : pmem    is a pointer to the memory partition control block
+* Arguments   : p_mem   is a pointer to the memory partition control block
 *
-*               perr    is a pointer to a variable containing an error message which will be set by this
-*                       function to either:
+*               p_err   is a pointer to a variable containing an error message which will be set by this function to
+*                       either:
 *
-*                       OS_ERR_NONE             if the memory partition has been created correctly.
-*                       OS_ERR_MEM_NO_FREE_BLKS if there are no more free memory blocks to allocate to caller
-*                       OS_ERR_MEM_INVALID_PMEM if you passed a NULL pointer for 'pmem'
+*                           OS_ERR_NONE               If the memory partition has been created correctly
+*                           OS_ERR_MEM_INVALID_P_MEM  If you passed a NULL pointer for 'p_mem'
+*                           OS_ERR_MEM_NO_FREE_BLKS   If there are no more free memory blocks to allocate to the caller
+*                           OS_ERR_OBJ_TYPE           If 'p_mem' is not pointing at a memory partition
 *
-* Returns     : A pointer to a memory block if no error is detected
-*               A pointer to NULL if an error is detected
-*********************************************************************************************************
+* Returns    : A pointer to a memory block if no error is detected
+*              A pointer to NULL if an error is detected
+*
+* Note(s)    : none
+************************************************************************************************************************
 */
 
-void  *OSMemGet (OS_MEM  *pmem,
-                 INT8U   *perr)
+void  *OSMemGet (OS_MEM  *p_mem,
+                 OS_ERR  *p_err)
 {
-    void      *pblk;
-#if OS_CRITICAL_METHOD == 3u                          /* Allocate storage for CPU status register      */
-    OS_CPU_SR  cpu_sr = 0u;
-#endif
+    void    *p_blk;
+    CPU_SR_ALLOC();
 
 
 
 #ifdef OS_SAFETY_CRITICAL
-    if (perr == (INT8U *)0) {
+    if (p_err == (OS_ERR *)0) {
         OS_SAFETY_CRITICAL_EXCEPTION();
-    }
-#endif
-
-#if OS_ARG_CHK_EN > 0u
-    if (pmem == (OS_MEM *)0) {                        /* Must point to a valid memory partition        */
-        *perr = OS_ERR_MEM_INVALID_PMEM;
         return ((void *)0);
     }
 #endif
-    OS_ENTER_CRITICAL();
-    if (pmem->OSMemNFree > 0u) {                      /* See if there are any free memory blocks       */
-        pblk                = pmem->OSMemFreeList;    /* Yes, point to next free memory block          */
-        pmem->OSMemFreeList = *(void **)pblk;         /*      Adjust pointer to new free list          */
-        pmem->OSMemNFree--;                           /*      One less memory block in this partition  */
-        OS_EXIT_CRITICAL();
-        *perr = OS_ERR_NONE;                          /*      No error                                 */
-        return (pblk);                                /*      Return memory block to caller            */
+
+    OS_TRACE_MEM_GET_ENTER(p_mem);
+
+#if (OS_CFG_ARG_CHK_EN > 0u)
+    if (p_mem == (OS_MEM *)0) {                                 /* Must point to a valid memory partition               */
+        OS_TRACE_MEM_GET_FAILED(p_mem);
+        OS_TRACE_MEM_GET_EXIT(OS_ERR_MEM_INVALID_P_MEM);
+       *p_err  = OS_ERR_MEM_INVALID_P_MEM;
+        return ((void *)0);
     }
-    OS_EXIT_CRITICAL();
-    *perr = OS_ERR_MEM_NO_FREE_BLKS;                  /* No,  Notify caller of empty memory partition  */
-    return ((void *)0);                               /*      Return NULL pointer to caller            */
+#endif
+
+#if (OS_CFG_OBJ_TYPE_CHK_EN > 0u)
+    if (p_mem->Type != OS_OBJ_TYPE_MEM) {                       /* Make sure the memory block was created               */
+        OS_TRACE_MEM_GET_EXIT(OS_ERR_OBJ_TYPE);
+       *p_err = OS_ERR_OBJ_TYPE;
+        return ((void *)0);
+    }
+#endif
+
+
+    CPU_CRITICAL_ENTER();
+    if (p_mem->NbrFree == 0u) {                                 /* See if there are any free memory blocks              */
+        CPU_CRITICAL_EXIT();
+        OS_TRACE_MEM_GET_FAILED(p_mem);
+        OS_TRACE_MEM_GET_EXIT(OS_ERR_MEM_NO_FREE_BLKS);
+       *p_err = OS_ERR_MEM_NO_FREE_BLKS;                        /* No,  Notify caller of empty memory partition         */
+        return ((void *)0);                                     /* Return NULL pointer to caller                        */
+    }
+    p_blk              = p_mem->FreeListPtr;                    /* Yes, point to next free memory block                 */
+    p_mem->FreeListPtr = *(void **)p_blk;                       /* Adjust pointer to new free list                      */
+    p_mem->NbrFree--;                                           /* One less memory block in this partition              */
+    CPU_CRITICAL_EXIT();
+    OS_TRACE_MEM_GET(p_mem);
+    OS_TRACE_MEM_GET_EXIT(OS_ERR_NONE);
+   *p_err = OS_ERR_NONE;                                        /* No error                                             */
+    return (p_blk);                                             /* Return memory block to caller                        */
 }
-/*$PAGE*/
+
+
 /*
-*********************************************************************************************************
-*                                   GET THE NAME OF A MEMORY PARTITION
+************************************************************************************************************************
+*                                                 RELEASE A MEMORY BLOCK
 *
-* Description: This function is used to obtain the name assigned to a memory partition.
+* Description : Returns a memory block to a partition.
 *
-* Arguments  : pmem      is a pointer to the memory partition
+* Arguments   : p_mem    is a pointer to the memory partition control block
 *
-*              pname     is a pointer to a pointer to an ASCII string that will receive the name of the memory partition.
+*               p_blk    is a pointer to the memory block being released.
 *
-*              perr      is a pointer to an error code that can contain one of the following values:
+*               p_err    is a pointer to a variable that will contain an error code returned by this function.
 *
-*                        OS_ERR_NONE                if the name was copied to 'pname'
-*                        OS_ERR_MEM_INVALID_PMEM    if you passed a NULL pointer for 'pmem'
-*                        OS_ERR_PNAME_NULL          You passed a NULL pointer for 'pname'
-*                        OS_ERR_NAME_GET_ISR        You called this function from an ISR
+*                            OS_ERR_NONE               If the memory block was inserted into the partition
+*                            OS_ERR_MEM_FULL           If you are returning a memory block to an already FULL memory
+*                                                      partition (You freed more blocks than you allocated!)
+*                            OS_ERR_MEM_INVALID_P_BLK  If you passed a NULL pointer for the block to release.
+*                            OS_ERR_MEM_INVALID_P_MEM  If you passed a NULL pointer for 'p_mem'
+*                            OS_ERR_OBJ_TYPE           If 'p_mem' is not pointing at a memory partition
 *
-* Returns    : The length of the string or 0 if 'pmem' is a NULL pointer.
-*********************************************************************************************************
+* Returns    : none
+*
+* Note(s)    : none
+************************************************************************************************************************
 */
 
-#if OS_MEM_NAME_EN > 0u
-INT8U  OSMemNameGet (OS_MEM   *pmem,
-                     INT8U   **pname,
-                     INT8U    *perr)
+void  OSMemPut (OS_MEM  *p_mem,
+                void    *p_blk,
+                OS_ERR  *p_err)
 {
-    INT8U      len;
-#if OS_CRITICAL_METHOD == 3u                     /* Allocate storage for CPU status register           */
-    OS_CPU_SR  cpu_sr = 0u;
-#endif
+    CPU_SR_ALLOC();
 
 
 
 #ifdef OS_SAFETY_CRITICAL
-    if (perr == (INT8U *)0) {
+    if (p_err == (OS_ERR *)0) {
         OS_SAFETY_CRITICAL_EXCEPTION();
-    }
-#endif
-
-#if OS_ARG_CHK_EN > 0u
-    if (pmem == (OS_MEM *)0) {                   /* Is 'pmem' a NULL pointer?                          */
-        *perr = OS_ERR_MEM_INVALID_PMEM;
-        return (0u);
-    }
-    if (pname == (INT8U **)0) {                  /* Is 'pname' a NULL pointer?                         */
-        *perr = OS_ERR_PNAME_NULL;
-        return (0u);
-    }
-#endif
-    if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
-        *perr = OS_ERR_NAME_GET_ISR;
-        return (0u);
-    }
-    OS_ENTER_CRITICAL();
-    *pname = pmem->OSMemName;
-    len    = OS_StrLen(*pname);
-    OS_EXIT_CRITICAL();
-    *perr  = OS_ERR_NONE;
-    return (len);
-}
-#endif
-
-/*$PAGE*/
-/*
-*********************************************************************************************************
-*                                 ASSIGN A NAME TO A MEMORY PARTITION
-*
-* Description: This function assigns a name to a memory partition.
-*
-* Arguments  : pmem      is a pointer to the memory partition
-*
-*              pname     is a pointer to an ASCII string that contains the name of the memory partition.
-*
-*              perr      is a pointer to an error code that can contain one of the following values:
-*
-*                        OS_ERR_NONE                if the name was copied to 'pname'
-*                        OS_ERR_MEM_INVALID_PMEM    if you passed a NULL pointer for 'pmem'
-*                        OS_ERR_PNAME_NULL          You passed a NULL pointer for 'pname'
-*                        OS_ERR_MEM_NAME_TOO_LONG   if the name doesn't fit in the storage area
-*                        OS_ERR_NAME_SET_ISR        if you called this function from an ISR
-*
-* Returns    : None
-*********************************************************************************************************
-*/
-
-#if OS_MEM_NAME_EN > 0u
-void  OSMemNameSet (OS_MEM  *pmem,
-                    INT8U   *pname,
-                    INT8U   *perr)
-{
-#if OS_CRITICAL_METHOD == 3u                     /* Allocate storage for CPU status register           */
-    OS_CPU_SR  cpu_sr = 0u;
-#endif
-
-
-
-#ifdef OS_SAFETY_CRITICAL
-    if (perr == (INT8U *)0) {
-        OS_SAFETY_CRITICAL_EXCEPTION();
-    }
-#endif
-
-#if OS_ARG_CHK_EN > 0u
-    if (pmem == (OS_MEM *)0) {                   /* Is 'pmem' a NULL pointer?                          */
-        *perr = OS_ERR_MEM_INVALID_PMEM;
-        return;
-    }
-    if (pname == (INT8U *)0) {                   /* Is 'pname' a NULL pointer?                         */
-        *perr = OS_ERR_PNAME_NULL;
         return;
     }
 #endif
-    if (OSIntNesting > 0u) {                     /* See if trying to call from an ISR                  */
-        *perr = OS_ERR_NAME_SET_ISR;
+
+    OS_TRACE_MEM_PUT_ENTER(p_mem, p_blk);
+
+#if (OS_CFG_ARG_CHK_EN > 0u)
+    if (p_mem == (OS_MEM *)0) {                                 /* Must point to a valid memory partition               */
+        OS_TRACE_MEM_PUT_FAILED(p_mem);
+        OS_TRACE_MEM_PUT_EXIT(OS_ERR_MEM_INVALID_P_MEM);
+       *p_err  = OS_ERR_MEM_INVALID_P_MEM;
         return;
     }
-    OS_ENTER_CRITICAL();
-    pmem->OSMemName = pname;
-    OS_EXIT_CRITICAL();
-    *perr           = OS_ERR_NONE;
-}
+    if (p_blk == (void *)0) {                                   /* Must release a valid block                           */
+        OS_TRACE_MEM_PUT_FAILED(p_mem);
+        OS_TRACE_MEM_PUT_EXIT(OS_ERR_MEM_INVALID_P_BLK);
+       *p_err  = OS_ERR_MEM_INVALID_P_BLK;
+        return;
+    }
 #endif
 
-/*$PAGE*/
+#if (OS_CFG_OBJ_TYPE_CHK_EN > 0u)
+    if (p_mem->Type != OS_OBJ_TYPE_MEM) {                       /* Make sure the memory block was created               */
+        OS_TRACE_MEM_PUT_EXIT(OS_ERR_OBJ_TYPE);
+       *p_err = OS_ERR_OBJ_TYPE;
+        return;
+    }
+#endif
+
+
+    CPU_CRITICAL_ENTER();
+    if (p_mem->NbrFree >= p_mem->NbrMax) {                      /* Make sure all blocks not already returned            */
+        CPU_CRITICAL_EXIT();
+        OS_TRACE_MEM_PUT_FAILED(p_mem);
+        OS_TRACE_MEM_PUT_EXIT(OS_ERR_MEM_FULL);
+       *p_err = OS_ERR_MEM_FULL;
+        return;
+    }
+    *(void **)p_blk    = p_mem->FreeListPtr;                    /* Insert released block into free block list           */
+    p_mem->FreeListPtr = p_blk;
+    p_mem->NbrFree++;                                           /* One more memory block in this partition              */
+    CPU_CRITICAL_EXIT();
+    OS_TRACE_MEM_PUT(p_mem);
+    OS_TRACE_MEM_PUT_EXIT(OS_ERR_NONE);
+   *p_err              = OS_ERR_NONE;                           /* Notify caller that memory block was released         */
+}
+
+
 /*
-*********************************************************************************************************
-*                                         RELEASE A MEMORY BLOCK
+************************************************************************************************************************
+*                                           ADD MEMORY PARTITION TO DEBUG LIST
 *
-* Description : Returns a memory block to a partition
+* Description : This function is called by OSMemCreate() to add the memory partition to the debug table.
 *
-* Arguments   : pmem    is a pointer to the memory partition control block
+* Arguments   : p_mem    Is a pointer to the memory partition
 *
-*               pblk    is a pointer to the memory block being released.
+* Returns     : none
 *
-* Returns     : OS_ERR_NONE              if the memory block was inserted into the partition
-*               OS_ERR_MEM_FULL          if you are returning a memory block to an already FULL memory
-*                                        partition (You freed more blocks than you allocated!)
-*               OS_ERR_MEM_INVALID_PMEM  if you passed a NULL pointer for 'pmem'
-*               OS_ERR_MEM_INVALID_PBLK  if you passed a NULL pointer for the block to release.
-*********************************************************************************************************
+* Note(s)    : This function is INTERNAL to uC/OS-III and your application should not call it.
+************************************************************************************************************************
 */
 
-INT8U  OSMemPut (OS_MEM  *pmem,
-                 void    *pblk)
+#if (OS_CFG_DBG_EN > 0u)
+void  OS_MemDbgListAdd (OS_MEM  *p_mem)
 {
-#if OS_CRITICAL_METHOD == 3u                     /* Allocate storage for CPU status register           */
-    OS_CPU_SR  cpu_sr = 0u;
-#endif
-
-
-
-#if OS_ARG_CHK_EN > 0u
-    if (pmem == (OS_MEM *)0) {                   /* Must point to a valid memory partition             */
-        return (OS_ERR_MEM_INVALID_PMEM);
+    p_mem->DbgPrevPtr               = (OS_MEM *)0;
+    if (OSMemDbgListPtr == (OS_MEM *)0) {
+        p_mem->DbgNextPtr           = (OS_MEM *)0;
+    } else {
+        p_mem->DbgNextPtr           =  OSMemDbgListPtr;
+        OSMemDbgListPtr->DbgPrevPtr =  p_mem;
     }
-    if (pblk == (void *)0) {                     /* Must release a valid block                         */
-        return (OS_ERR_MEM_INVALID_PBLK);
-    }
-#endif
-    OS_ENTER_CRITICAL();
-    if (pmem->OSMemNFree >= pmem->OSMemNBlks) {  /* Make sure all blocks not already returned          */
-        OS_EXIT_CRITICAL();
-        return (OS_ERR_MEM_FULL);
-    }
-    *(void **)pblk      = pmem->OSMemFreeList;   /* Insert released block into free block list         */
-    pmem->OSMemFreeList = pblk;
-    pmem->OSMemNFree++;                          /* One more memory block in this partition            */
-    OS_EXIT_CRITICAL();
-    return (OS_ERR_NONE);                        /* Notify caller that memory block was released       */
+    OSMemDbgListPtr                 =  p_mem;
 }
-/*$PAGE*/
-/*
-*********************************************************************************************************
-*                                          QUERY MEMORY PARTITION
-*
-* Description : This function is used to determine the number of free memory blocks and the number of
-*               used memory blocks from a memory partition.
-*
-* Arguments   : pmem        is a pointer to the memory partition control block
-*
-*               p_mem_data  is a pointer to a structure that will contain information about the memory
-*                           partition.
-*
-* Returns     : OS_ERR_NONE               if no errors were found.
-*               OS_ERR_MEM_INVALID_PMEM   if you passed a NULL pointer for 'pmem'
-*               OS_ERR_MEM_INVALID_PDATA  if you passed a NULL pointer to the data recipient.
-*********************************************************************************************************
-*/
-
-#if OS_MEM_QUERY_EN > 0u
-INT8U  OSMemQuery (OS_MEM       *pmem,
-                   OS_MEM_DATA  *p_mem_data)
-{
-#if OS_CRITICAL_METHOD == 3u                     /* Allocate storage for CPU status register           */
-    OS_CPU_SR  cpu_sr = 0u;
 #endif
 
 
-
-#if OS_ARG_CHK_EN > 0u
-    if (pmem == (OS_MEM *)0) {                   /* Must point to a valid memory partition             */
-        return (OS_ERR_MEM_INVALID_PMEM);
-    }
-    if (p_mem_data == (OS_MEM_DATA *)0) {        /* Must release a valid storage area for the data     */
-        return (OS_ERR_MEM_INVALID_PDATA);
-    }
-#endif
-    OS_ENTER_CRITICAL();
-    p_mem_data->OSAddr     = pmem->OSMemAddr;
-    p_mem_data->OSFreeList = pmem->OSMemFreeList;
-    p_mem_data->OSBlkSize  = pmem->OSMemBlkSize;
-    p_mem_data->OSNBlks    = pmem->OSMemNBlks;
-    p_mem_data->OSNFree    = pmem->OSMemNFree;
-    OS_EXIT_CRITICAL();
-    p_mem_data->OSNUsed    = p_mem_data->OSNBlks - p_mem_data->OSNFree;
-    return (OS_ERR_NONE);
-}
-#endif                                           /* OS_MEM_QUERY_EN                                    */
-/*$PAGE*/
 /*
-*********************************************************************************************************
-*                                    INITIALIZE MEMORY PARTITION MANAGER
+************************************************************************************************************************
+*                                           INITIALIZE MEMORY PARTITION MANAGER
 *
-* Description : This function is called by uC/OS-II to initialize the memory partition manager.  Your
+* Description : This function is called by uC/OS-III to initialize the memory partition manager.  Your
 *               application MUST NOT call this function.
 *
 * Arguments   : none
 *
 * Returns     : none
 *
-* Note(s)    : This function is INTERNAL to uC/OS-II and your application should not call it.
-*********************************************************************************************************
+* Note(s)    : This function is INTERNAL to uC/OS-III and your application should not call it.
+************************************************************************************************************************
 */
 
-void  OS_MemInit (void)
+void  OS_MemInit (OS_ERR  *p_err)
 {
-#if OS_MAX_MEM_PART == 1u
-    OS_MemClr((INT8U *)&OSMemTbl[0], sizeof(OSMemTbl));   /* Clear the memory partition table          */
-    OSMemFreeList               = (OS_MEM *)&OSMemTbl[0]; /* Point to beginning of free list           */
-#if OS_MEM_NAME_EN > 0u
-    OSMemFreeList->OSMemName    = (INT8U *)"?";           /* Unknown name                              */
+#if (OS_CFG_DBG_EN > 0u)
+    OSMemDbgListPtr = (OS_MEM *)0;
+    OSMemQty        = 0u;
 #endif
-#endif
-
-#if OS_MAX_MEM_PART >= 2u
-    OS_MEM  *pmem;
-    INT16U   i;
-
-
-    OS_MemClr((INT8U *)&OSMemTbl[0], sizeof(OSMemTbl));   /* Clear the memory partition table          */
-    for (i = 0u; i < (OS_MAX_MEM_PART - 1u); i++) {       /* Init. list of free memory partitions      */
-        pmem                = &OSMemTbl[i];               /* Point to memory control block (MCB)       */
-        pmem->OSMemFreeList = (void *)&OSMemTbl[i + 1u];  /* Chain list of free partitions             */
-#if OS_MEM_NAME_EN > 0u
-        pmem->OSMemName  = (INT8U *)(void *)"?";
-#endif
-    }
-    pmem                = &OSMemTbl[i];
-    pmem->OSMemFreeList = (void *)0;                      /* Initialize last node                      */
-#if OS_MEM_NAME_EN > 0u
-    pmem->OSMemName = (INT8U *)(void *)"?";
-#endif
-
-    OSMemFreeList   = &OSMemTbl[0];                       /* Point to beginning of free list           */
-#endif
+   *p_err           = OS_ERR_NONE;
 }
-#endif                                                    /* OS_MEM_EN                                 */
-	 	   	  		 			 	    		   		 		 	 	 			 	    		   	 			 	  	 		 				 		  			 		 					 	  	  		      		  	   		      		  	 		 	      		   		 		  	 		 	      		  		  		  
+#endif

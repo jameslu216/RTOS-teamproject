@@ -13,7 +13,7 @@
 * LICENSING TERMS:
 * ---------------
 *   uC/OS-II is provided in source form for FREE evaluation, for educational use or for peaceful research.  
-* If you plan on using  uC/OS-II  in a commercial product you need to contact Micriµm to properly license 
+* If you plan on using  uC/OS-II  in a commercial product you need to contact Micriï¿½m to properly license 
 * its use in your product. We provide ALL the source code for your convenience and to help you experience 
 * uC/OS-II.   The fact that the  source is provided does  NOT  mean that you can use it without  paying a 
 * licensing fee.
@@ -21,7 +21,8 @@
 */
 
 #define  OS_GLOBALS                           /* Declare GLOBAL variables                              */
-#include <ucos_ii.h>
+// #include <ucos_ii.h> // in ucos III, it's replaced by os.h
+// #include "os.h"
 
 
 #define  OS_MASTER_FILE                       /* Prevent the following files from including includes.h */
