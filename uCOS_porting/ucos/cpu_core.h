@@ -103,7 +103,8 @@
 
 // #include  <cpu.h> // ARM CORTEX A53 hasn't been made by jiawei
 #include  "../uC-LIB/lib_def.h"
-#include  <cpu_cfg.h>
+#include "os_type.h"
+// #include  <cpu_cfg.h> //wait for 
 
 #if (CPU_CFG_NAME_EN == DEF_ENABLED)
 #include  <lib_mem.h>
