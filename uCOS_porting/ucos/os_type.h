@@ -36,8 +36,9 @@ const     CPU_CHAR  *os_type__h = "$Id: $";
 ************************************************************************************************************************
 */
 
-
-typedef unsigned char  CPU_BOOLEAN;                 
+typedef void CPU_VOID;
+typedef unsigned char  CPU_BOOLEAN;     
+typedef unsigned char CPU_CHAR;            
 typedef unsigned char  CPU_INT08U;                  
 typedef signed   char  CPU_INT08S;
 typedef unsigned short CPU_INT16U;
@@ -47,6 +48,19 @@ typedef signed   int   CPU_INT32S;
 typedef unsigned long long CPU_INT64U;
 typedef float          CPU_FP32;
 typedef double         CPU_FP64;
+
+typedef CPU_INT32U CPU_STK;
+typedef CPU_INT32U CPU_TS;
+typedef CPU_INT32U CPU_DATA;
+typedef CPU_INT32U CPU_ADDR;
+typedef CPU_ADDR CPU_STK_SIZE;
+
+typedef volatile CPU_INT08U CPU_REG08;
+typedef volatile CPU_INT16U CPU_REG16;
+typedef volatile CPU_INT32U CPU_REG32;
+typedef volatile CPU_INT64U CPU_REG64;
+typedef void (*CPU_FNCT_VOID)(void);
+typedef void (*CPU_FNCT_PTR)(void*);
 
 
 /*
