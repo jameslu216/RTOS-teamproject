@@ -117,10 +117,10 @@ int main(void) {
 	InitInterruptController();
 
 	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
-	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
-	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
+//	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
+//	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
     // Admissible Workload for 1ms is 34
-	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
+//	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
 
