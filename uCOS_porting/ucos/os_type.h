@@ -28,6 +28,27 @@
 const     CPU_CHAR  *os_type__h = "$Id: $";
 #endif
 
+
+
+/*
+************************************************************************************************************************
+*                                                 TYPEDEF for compiler 20200521
+************************************************************************************************************************
+*/
+
+
+typedef unsigned char  CPU_BOOLEAN;                 
+typedef unsigned char  CPU_INT08U;                  
+typedef signed   char  CPU_INT08S;
+typedef unsigned short CPU_INT16U;
+typedef signed   short CPU_INT16S;
+typedef unsigned int   CPU_INT32U;
+typedef signed   int   CPU_INT32S;
+typedef unsigned long long CPU_INT64U;
+typedef float          CPU_FP32;
+typedef double         CPU_FP64;
+
+
 /*
 ************************************************************************************************************************
 *                                                 INCLUDE HEADER FILES

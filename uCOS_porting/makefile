@@ -5,7 +5,7 @@ INCLUDEPATH ?= -I "./h"
 INCLUDEPATH += -I "/home/alieon/RTOS_HW/RTOS_Porting/RTOS-teamproject/uCOS_porting/ucos"
 INCLUDEPATH += -I "./port"
 
-COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding -mcpu=arm1176jzf-s $(INCLUDEPATH)
+COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding -mcpu=cortex-a53 $(INCLUDEPATH)
 
 gcc : kernel.img
 
