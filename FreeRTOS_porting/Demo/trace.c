@@ -12,9 +12,13 @@ void vThreadContextSwitchIn(unsigned portBASE_TYPE priority) {
     portGET_CURRENT_TIME_IN_MICROSECOND();
     extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
 	if(switchPriority < priority) {
-	    printHex("Preemption Time=", ulCurrentTimeInMicroSecond-switchOutTime, BLUE_TEXT);		
+		#ifdef configMEASURE_PREEMPTION_TIME
+	    printHex("Preemption Time=", ulCurrentTimeInMicroSecond-switchOutTime, BLUE_TEXT);	
+	    #endif	
 	} else if(switchPriority == priority) {
+		#ifdef configMEASURE_THREAD_SWITCH_TIME
 	    printHex("Thread Switch Time=", ulCurrentTimeInMicroSecond-switchOutTime, BLUE_TEXT);		
+	    #endif
 	}
 }
 
