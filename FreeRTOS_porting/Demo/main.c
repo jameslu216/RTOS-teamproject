@@ -57,50 +57,40 @@ void taskOutputTest() {
 	vTaskDelete(NULL);
 }
 
-void taskMeasureTest() {
-	println("Measure Test - start", GREEN_TEXT);
-	portTickType startTick = xTaskGetTickCount();
-	long i, j = 1;
-	for(i = 0;i < 100;++i) {
-		j += i;
-	}
-	portTickType endTick = xTaskGetTickCount();
-	println("Measure Test - end", GREEN_TEXT);
-
-
-	println("Available printf Test - start", GREEN_TEXT);
-	printHex("Output Int: ", j, BLUE_TEXT);
-	printHex("Current Tick: ", startTick, BLUE_TEXT);
-	printHex("Latency: ", (int)(endTick-startTick), BLUE_TEXT);
-
-	vTaskDelete(NULL);
-}
 
 void taskInterruptLatency() {
 	println("Measuring Interrupt Latency", GREEN_TEXT);
 	accelerateLedState = !accelerateLedState;
-	portTickType startTick = xTaskGetTickCount();
+	extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
+
+	portGET_CURRENT_TIME_IN_MICROSECOND();
+	portLONG startTime = ulCurrentTimeInMicroSecond;
 	SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
 	while(ReadGpio(ACCELERATE_LED_GPIO) != accelerateLedState);
-	portTickType endTick = xTaskGetTickCount();
-	printHex("Interrupt Latency: ", (int)(endTick-startTick), BLUE_TEXT);
+	portGET_CURRENT_TIME_IN_MICROSECOND();
+	portLONG endTime = ulCurrentTimeInMicroSecond;
+
+	printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
 	vTaskDelete(NULL);
 }
 
 void taskMeasureWorkload1msStandard() {
 	println("Getting 1ms workload", GREEN_TEXT);
+	extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
 	long averageWorkloadAmount = 0;
 	int i;
 	for(i = 0;i < 1000;++i) {	
 		int workloadAmount = 0;
-		portTickType startTick;
-		portTickType endTick;
+		portTickType startTime;
+		portTickType endTime;
 		do {
 			++workloadAmount;
-			startTick = xTaskGetTickCount();
+			portGET_CURRENT_TIME_IN_MICROSECOND();
+			startTime = ulCurrentTimeInMicroSecond;
             measure_workload_1ms(workloadAmount);
-			endTick = xTaskGetTickCount();
-		}while(endTick-startTick < 1);
+            portGET_CURRENT_TIME_IN_MICROSECOND();
+			endTime = ulCurrentTimeInMicroSecond;
+		}while(endTime-startTime < 1000);
 //		printHex("Admissible workload=", workloadAmount, BLUE_TEXT);
 		averageWorkloadAmount += workloadAmount;
 	}
@@ -120,9 +110,7 @@ int main(void) {
 	InitInterruptController();
 
 	xTaskCreate(taskOutputTest, "OUTPUT_TEST", 128, NULL, 0, NULL);
-//	xTaskCreate(taskMeasureTest, "MEASURE_TEST", 128, NULL, 4, NULL);
 //	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
-    // Admissible Workload for 1ms is 34
 //	xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
 
 	println("Starting task scheduler", GREEN_TEXT);
