@@ -98,6 +98,27 @@ void taskMeasureWorkload1msStandard() {
 	vTaskDelete(NULL);
 }
 
+void taskMeasurePreemptionTimeHigherPriority() {
+	int workload1MsTime = 10000;
+	long i;
+	for(i = 0;i < workload1MsTime;++i) {
+		workload_1ms();		
+	} 
+}
+
+void taskMeasurePreemptionTimeLowerPriority() {
+	int workload1MsTime = 1000;
+	long i;
+	for(i = 0;i < workload1MsTime;++i) {
+		workload_1ms();		
+	} 
+	xTaskCreate(taskMeasurePreemptionTimeHigherPriority, "MEASURE_PT_HIGHER_PRIORI", 128, NULL, 2, NULL);
+	workload1MsTime = 10000;
+	for(i = 0;i < workload1MsTime;++i) {
+		workload_1ms();		
+	} 
+}
+
 int main(void) {
 
 	SetGpioFunction(ACCELERATE_LED_GPIO, 1);
@@ -113,7 +134,10 @@ int main(void) {
 	#ifdef configMEASURE_INTERRUPT_LATENCY
 	xTaskCreate(taskInterruptLatency, "MEASURE_INTERRUPT_LATENCY", 128, NULL, 3, NULL);
 	#endif
-	// xTaskCreate(taskMeasureWorkload1msStandard, "MEASURE_1MS_WORKLOAD", 128, NULL, 1, NULL);
+	#ifdef configMEASURE_PREEMPTION_TIME
+	xTaskCreate(taskMeasurePreemptionTimeLowerPriority, "MEASURE_PT_LOWER_PRIORI", 128, NULL, 1, NULL);
+
+	#endif
 
 	println("Starting task scheduler", GREEN_TEXT);
 
