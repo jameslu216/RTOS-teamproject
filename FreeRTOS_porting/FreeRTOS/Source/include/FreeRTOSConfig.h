@@ -68,8 +68,8 @@
 #define FREERTOS_CONFIG_H
 
 /* Measure config */
-#define configMEASURE_INTERRUPT_LATENCY
-// #define configMEASURE_THREAD_SWITCH_TIME
+// #define configMEASURE_INTERRUPT_LATENCY
+#define configMEASURE_THREAD_SWITCH_TIME
 // #define configMEASURE_PREEMPTION_TIME
 
 /*-----------------------------------------------------------
