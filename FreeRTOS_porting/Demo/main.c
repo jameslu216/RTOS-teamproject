@@ -78,6 +78,10 @@ void taskInterruptLatency() {
 		accelerateLedState = !accelerateLedState;
 		recordTraceData(endTime-startTime);		
 		printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
+		volatile int *timeStamp = (int *) 0x3f003004;
+        int stop = *timeStamp + 20 * 1000;
+        while (*timeStamp < stop) __asm__("nop");
+
 	}
 	// printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
 	outputTraceData();
