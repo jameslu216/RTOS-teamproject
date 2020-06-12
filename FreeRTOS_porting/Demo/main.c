@@ -61,16 +61,19 @@ void taskOutputTest() {
 void taskInterruptLatency() {
 	println("Measuring Interrupt Latency", GREEN_TEXT);
 	accelerateLedState = !accelerateLedState;
-	extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
+	for(int i = 0;i < 128;++i) {
+		extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
 
-	portGET_CURRENT_TIME_IN_MICROSECOND();
-	portLONG startTime = ulCurrentTimeInMicroSecond;
-	SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
-	while(ReadGpio(ACCELERATE_LED_GPIO) != accelerateLedState);
-	portGET_CURRENT_TIME_IN_MICROSECOND();
-	portLONG endTime = ulCurrentTimeInMicroSecond;
-
-	printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
+		portGET_CURRENT_TIME_IN_MICROSECOND();
+		portLONG startTime = ulCurrentTimeInMicroSecond;
+		SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
+		while(ReadGpio(ACCELERATE_LED_GPIO) != accelerateLedState);
+		portGET_CURRENT_TIME_IN_MICROSECOND();
+		portLONG endTime = ulCurrentTimeInMicroSecond;
+		recordTraceData(endTime-startTime);		
+	}
+	// printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
+	outputTraceData();
 	vTaskDelete(NULL);
 }
 
