@@ -74,9 +74,10 @@ void taskInterruptLatency() {
 		accelerateLedState = !accelerateLedState;
 		SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
 		while(ReadGpio(ACCELERATE_LED_GPIO) != accelerateLedState);
-		
+
 		accelerateLedState = !accelerateLedState;
 		recordTraceData(endTime-startTime);		
+		printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
 	}
 	// printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
 	outputTraceData();
