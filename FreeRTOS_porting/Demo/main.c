@@ -70,6 +70,12 @@ void taskInterruptLatency() {
 		while(ReadGpio(ACCELERATE_LED_GPIO) != accelerateLedState);
 		portGET_CURRENT_TIME_IN_MICROSECOND();
 		portLONG endTime = ulCurrentTimeInMicroSecond;
+		// reset
+		accelerateLedState = !accelerateLedState;
+		SetGpio(ACCELERATE_LED_GPIO, accelerateLedState);
+		while(ReadGpio(ACCELERATE_LED_GPIO) != accelerateLedState);
+		
+		accelerateLedState = !accelerateLedState;
 		recordTraceData(endTime-startTime);		
 	}
 	// printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
