@@ -110,23 +110,23 @@ void taskMeasureWorkload1msStandard() {
 }
 
 void taskMeasurePreemptionTimeHigherPriority() {
-	int workload1MsTime = 10000;
-	long i;
-	for(i = 0;i < workload1MsTime;++i) {
-		workload_1ms();		
+	while(1) {
+		for(int i = 0;i < 10;++i) {
+			workload_1ms();					
+		}
+		vTaskSuspend(NULL); // suspend ourself
 	} 
 }
 
 void taskMeasurePreemptionTimeLowerPriority() {
-	int workload1MsTime = 1000;
-	long i;
-	for(i = 0;i < workload1MsTime;++i) {
-		workload_1ms();		
-	} 
-	xTaskCreate(taskMeasurePreemptionTimeHigherPriority, "MEASURE_PT_HIGHER_PRIORI", 128, NULL, 2, NULL);
-	workload1MsTime = 10000;
-	for(i = 0;i < workload1MsTime;++i) {
-		workload_1ms();		
+	// Create higher priority task
+	xTaskHandle xHandle;
+	xTaskCreate(taskMeasurePreemptionTimeHigherPriority, "MEASURE_PT_HIGHER_PRIORI", 128, NULL, 2, &xHandle);
+	while(1) {
+		for(int i = 0;i < 10;++i) {
+			workload_1ms();					
+		}
+		vTaskResume(xHandle); // suspend ourself
 	} 
 }
 
