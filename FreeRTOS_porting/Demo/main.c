@@ -61,7 +61,7 @@ void taskOutputTest() {
 void taskInterruptLatency() {
 	println("Measuring Interrupt Latency", GREEN_TEXT);
 	accelerateLedState = !accelerateLedState;
-	for(int i = 0;i < 128;++i) {
+	while(1) {
 		extern volatile unsigned portLONG ulCurrentTimeInMicroSecond;
 
 		portGET_CURRENT_TIME_IN_MICROSECOND();
@@ -78,9 +78,6 @@ void taskInterruptLatency() {
 		accelerateLedState = !accelerateLedState;
 		recordTraceData(endTime-startTime);		
 		printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
-		volatile int *timeStamp = (int *) 0x3f003004;
-        int stop = *timeStamp + 20 * 1000;
-        while (*timeStamp < stop) __asm__("nop");
 
 	}
 	// printHex("Interrupt Latency: ", (int)(endTime-startTime), BLUE_TEXT);
