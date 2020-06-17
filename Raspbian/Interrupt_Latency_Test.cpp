@@ -5,7 +5,7 @@
 #define LED 1
 int main(void)
 {
-    FILE *fp=fopen("Interrupt_Test_Result.txt","a+");
+    FILE *fp=fopen("Interrupt_Latency_Test_Result.txt","a+");
     if(!fp)
         printf("File BOOM!\n");
     wiringPiSetup();

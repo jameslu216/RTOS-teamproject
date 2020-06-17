@@ -10,7 +10,7 @@ struct Threadtask
     int order,priority;
     struct timespec enter_thread_time,leave_thread_time,enter_critical_time,leave_critical_time;
 };
-FILE *fp=fopen("Switch_Test_Result.txt","w");
+FILE *fp=fopen("Thread_Preempt_Test_Result.txt","w");
 struct timespec StartTime,EndTime;
 
 void setSchedulingPolicy (int newPolicy, int priority)
@@ -145,7 +145,7 @@ int main()
                 exit(1);
             }
         }
-        switchingTime=abs(task[1].enter_thread_time.tv_nsec-task[0].leave_thread_time.tv_nsec); //ns
+        switchingTime=abs(task[1].enter_critical_time.tv_nsec-task[0].leave_thread_time.tv_nsec); //ns
         std::cout<<switchingTime<<std::endl;
         fprintf(fp,"%ld\n",(switchingTime)/1000);
         fflush(stdout);
