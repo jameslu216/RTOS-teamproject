@@ -1,0 +1,1 @@
+Currently in raspberry pi 3B+ with cpu frquence 1400000MHz
