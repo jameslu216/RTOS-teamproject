@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-os_list = ["FreeRTOS", "FreeRTOS_1"] # Fill in your csv name without extension
+os_list = ["FreeRTOS", "Raspbian"] # Fill in your csv name without extension
 measure_list= ["IL", "TCST", "TPT"]
 
 df_list = [pd.read_csv(os_list[i]+'.csv') for i in range(len(os_list))]
@@ -25,5 +25,6 @@ for i in range(len(measure_list)):
         ax = axes[i],
         title = measure_list[i]
 	)
+	axes[i].set_ylabel("Time (us)")
 
 plt.savefig('comparison_result.png')
